@@ -31,11 +31,14 @@ dependencies {
             'org.springframework.boot:spring-boot-starter-security',
             'org.springframework.boot:spring-boot-starter-cache',
             'org.springframework.boot:spring-boot-starter-oauth2-resource-server',
+            'org.springframework.kafka:spring-kafka',
 
             'org.glassfish.jersey.media:jersey-media-multipart:2.35',
 
             'org.springframework:spring-jms',
             'org.springframework:spring-context-support',
+
+            'org.liquibase:liquibase-core',
 
             'com.google.guava:guava',
             'com.google.code.gson:gson',
