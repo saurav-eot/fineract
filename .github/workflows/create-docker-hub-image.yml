@@ -21,7 +21,7 @@ jobs:
       run: |
         echo ${{ secrets.DOCKER_PASSWORD_FINTECHEANDO }} | docker login -u ${{ secrets.DOCKER_USER_FINTECHEANDO }} --password-stdin
     - name: Build the Docker image
-      run: ./gradlew :fineract-provider:clean :fineract-provider:jibDockerBuild -x test -Djib.to.tags=fintecheando/fineract:1.6.0
+      run: ./gradlew :fineract-provider:clean :fineract-provider:jibDockerBuild -x test
       
     - name: Docker Hub Push
       run: docker push fintecheando/fineract
