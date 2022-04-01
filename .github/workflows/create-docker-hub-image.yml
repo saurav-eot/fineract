@@ -14,19 +14,25 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    
     - name: Set up JDK 17
       uses: actions/setup-java@v2
       with:
         java-version: '17'
         distribution: 'zulu'
+
     - name: docker login
       env:
         DOCKER_USER: ${{secrets.DOCKER_USER_FINTECHEANDO}}
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD_FINTECHEANDO}}
       run: |
         echo ${{ secrets.DOCKER_PASSWORD_FINTECHEANDO }} | docker login -u ${{ secrets.DOCKER_USER_FINTECHEANDO }} --password-stdin
+
     - name: Build the Docker image
       run: ./gradlew :fineract-provider:clean :fineract-provider:jibDockerBuild -x test
       
-    - name: Docker Hub Push
-      run: docker push fintecheando/fineract
+    - name: Docker Hub Prepare
+      run: docker image tag fineract fintecheando/fineract:1.6.1
+
+    - name: Docker Hub Push  
+      run: docker image push fintecheando/fineract:1.6.1
