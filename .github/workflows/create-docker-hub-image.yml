@@ -25,14 +25,16 @@ jobs:
       env:
         DOCKER_USER: ${{secrets.DOCKER_USER_FINTECHEANDO}}
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD_FINTECHEANDO}}
+        DOCKER_ORGANIZATION: ${{secrets.DOCKER_ORGANIZATION}}
+        FINERACT_VERSION: ${{secrets.FINERACT_LATEST_STABLE_VERSION}}
       run: |
-        echo ${{ secrets.DOCKER_PASSWORD_FINTECHEANDO }} | docker login -u ${{ secrets.DOCKER_USER_FINTECHEANDO }} --password-stdin
+        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin
 
     - name: Build the Docker image
       run: ./gradlew :fineract-provider:clean :fineract-provider:jibDockerBuild -x test
       
     - name: Docker Hub Prepare
-      run: docker image tag fineract fintecheando/fineract:1.6.1
+      run: docker image tag fineract $DOCKER_ORGANIZATION/fineract:$FINERACT_VERSION
 
     - name: Docker Hub Push  
-      run: docker image push fintecheando/fineract:1.6.1
+      run: docker image push $DOCKER_ORGANIZATION/fineract:$FINERACT_VERSION
