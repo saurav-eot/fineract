@@ -1,0 +1,41 @@
+name: Publish Image in Docker Hub 
+
+on:
+  push:
+    branches: [ gedit-1.6.0 ]
+  pull_request:
+    branches: [ gedit-1.6.0 ]
+
+jobs:
+
+  build:
+  
+    runs-on: ubuntu-latest
+    env:
+        DOCKER_ORGANIZATION: ${{secrets.DOCKER_ORGANIZATION}}
+        FINERACT_VERSION: ${{secrets.FINERACT_LATEST_STABLE_VERSION}}
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v2
+      with:
+        java-version: '17'
+        distribution: 'zulu'
+
+    - name: Docker Hub Login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      run: |
+        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin
+
+    - name: Build the Docker image
+      run: ./gradlew :fineract-provider:clean :fineract-provider:jibDockerBuild -x test
+      
+    - name: Docker Hub Prepare
+      run: docker image tag fineract $DOCKER_ORGANIZATION/fineract:$FINERACT_VERSION
+
+    - name: Docker Hub Push  
+      run: docker image push $DOCKER_ORGANIZATION/fineract:$FINERACT_VERSION
