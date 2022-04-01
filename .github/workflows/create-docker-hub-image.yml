@@ -19,7 +19,7 @@ jobs:
         DOCKER_USER: ${{secrets.DOCKER_USER_FINTECHEANDO}}
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD_FINTECHEANDO}}
       run: |
-        echo $DOCKER_PASSWORD_FINTECHEANDO | docker login -u $DOCKER_USER_FINTECHEANDO --password-stdin 
+        echo ${{ secrets.DOCKER_PASSWORD_FINTECHEANDO }} | docker login -u ${{ secrets.DOCKER_USER_FINTECHEANDO }} --password-stdin
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag fintecheando/fineract:1.6.0
       
