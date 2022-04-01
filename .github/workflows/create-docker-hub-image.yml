@@ -9,8 +9,11 @@ on:
 jobs:
 
   build:
-
+  
     runs-on: ubuntu-latest
+    env:
+        DOCKER_ORGANIZATION: ${{secrets.DOCKER_ORGANIZATION}}
+        FINERACT_VERSION: ${{secrets.FINERACT_LATEST_STABLE_VERSION}}
 
     steps:
     - uses: actions/checkout@v2
@@ -25,8 +28,6 @@ jobs:
       env:
         DOCKER_USER: ${{secrets.DOCKER_USER}}
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-        DOCKER_ORGANIZATION: ${{secrets.DOCKER_ORGANIZATION}}
-        FINERACT_VERSION: ${{secrets.FINERACT_LATEST_STABLE_VERSION}}
       run: |
         echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin
 
@@ -34,7 +35,7 @@ jobs:
       run: ./gradlew :fineract-provider:clean :fineract-provider:jibDockerBuild -x test
       
     - name: Docker Hub Prepare
-      run: docker image tag fineract $DOCKER_ORGANIZATION/fineract:$FINERACT_VERSION
+      run: docker image tag fineract $DOCKER_ORGANIZATION/fineract:$FINERACT_LATEST_STABLE_VERSION
 
     - name: Docker Hub Push  
-      run: docker image push $DOCKER_ORGANIZATION/fineract:$FINERACT_VERSION
+      run: docker image push $DOCKER_ORGANIZATION/fineract:$FINERACT_LATEST_STABLE_VERSION
