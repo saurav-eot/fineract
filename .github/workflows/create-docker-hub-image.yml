@@ -1,0 +1,27 @@
+name: Publish Docker Image
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER_FINTECHEANDO}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD_FINTECHEANDO}}
+      run: |
+        docker login -u $DOCKER_USER_FINTECHEANDO -p $DOCKER_PASSWORD_FINTECHEANDO 
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag fintecheando/fineract:1.6.0
+      
+    - name: Docker Hub Push
+      run: docker push fintecheando/fineract
