@@ -2,9 +2,9 @@ name: Publish Docker Image
 
 on:
   push:
-    branches: [ master ]
+    branches: [ gedit-1.6.0 ]
   pull_request:
-    branches: [ master ]
+    branches: [ gedit-1.6.0 ]
 
 jobs:
 
