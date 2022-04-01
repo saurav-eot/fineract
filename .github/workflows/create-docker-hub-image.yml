@@ -35,7 +35,7 @@ jobs:
       run: ./gradlew :fineract-provider:clean :fineract-provider:jibDockerBuild -x test
       
     - name: Docker Hub Prepare
-      run: docker image tag fineract $DOCKER_ORGANIZATION/fineract:$FINERACT_LATEST_STABLE_VERSION
+      run: docker image tag fineract $DOCKER_ORGANIZATION/fineract:$FINERACT_VERSION
 
     - name: Docker Hub Push  
-      run: docker image push $DOCKER_ORGANIZATION/fineract:$FINERACT_LATEST_STABLE_VERSION
+      run: docker image push $DOCKER_ORGANIZATION/fineract:$FINERACT_VERSION
