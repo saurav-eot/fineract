@@ -1,4 +1,4 @@
-name: Publish Docker Image
+name: Publish Image in Docker Hub 
 
 on:
   push:
@@ -23,8 +23,8 @@ jobs:
 
     - name: docker login
       env:
-        DOCKER_USER: ${{secrets.DOCKER_USER_FINTECHEANDO}}
-        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD_FINTECHEANDO}}
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
         DOCKER_ORGANIZATION: ${{secrets.DOCKER_ORGANIZATION}}
         FINERACT_VERSION: ${{secrets.FINERACT_LATEST_STABLE_VERSION}}
       run: |
