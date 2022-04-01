@@ -277,7 +277,8 @@ jib {
         image = 'fineract'
         tags = [
             "${version}",
-            'latest'
+            'latest',
+            'fintecheando/fineract'
         ]
     }
 
