@@ -19,10 +19,13 @@
 
 package org.apache.fineract.infrastructure.core.config;
 
+import java.util.Arrays;
+
 import org.apache.fineract.infrastructure.security.filter.TenantAwareBasicAuthenticationFilter;
 import org.apache.fineract.infrastructure.security.filter.TwoFactorAuthenticationFilter;
 import org.apache.fineract.infrastructure.security.service.TenantAwareJpaPlatformUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -41,6 +44,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @ConditionalOnProperty("fineract.security.basicauth.enabled")
@@ -56,10 +62,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private ServerProperties serverProperties;
 
+    @Value("${fineract.security.on.gcp}")
+    private Boolean securityOnGcp;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         http //
+                .cors().and()
                 .csrf().disable() // NOSONAR only creating a service that is used by non-browser clients
                 .antMatcher("/api/**").authorizeRequests() //
                 .antMatchers(HttpMethod.OPTIONS, "/api/**").permitAll() //
@@ -70,7 +80,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/*/self/registration/user").permitAll() //
                 .antMatchers(HttpMethod.POST, "/api/*/twofactor/validate").fullyAuthenticated() //
                 .antMatchers("/api/*/twofactor").fullyAuthenticated() //
-                .antMatchers("/api/**").access("isFullyAuthenticated() and hasAuthority('TWOFACTOR_AUTHENTICATED')").and() //
+                .antMatchers("/api/**").access("isFullyAuthenticated() and hasAuthority('TWOFACTOR_AUTHENTICATED')")
+                .and() //
                 .httpBasic() //
                 .authenticationEntryPoint(basicAuthenticationEntryPoint()) //
                 .and() //
@@ -80,10 +91,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilterAfter(tenantAwareBasicAuthenticationFilter(), SecurityContextPersistenceFilter.class) //
                 .addFilterAfter(twoFactorAuthenticationFilter, BasicAuthenticationFilter.class); //
 
-        if (serverProperties.getSsl().isEnabled()) {
-            http.requiresChannel(channel -> channel.antMatchers("/api/**").requiresSecure());
-        } else {
-            http.requiresChannel(channel -> channel.antMatchers("/api/**").requiresInsecure());
+        if (securityOnGcp == false) {
+            if (serverProperties.getSsl().isEnabled()) {
+                http.requiresChannel(channel -> channel.antMatchers("/api/**").requiresSecure());
+            } else {
+                http.requiresChannel(channel -> channel.antMatchers("/api/**").requiresInsecure());
+            }
         }
     }
 
@@ -139,5 +152,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 twoFactorAuthenticationFilter);
         registration.setEnabled(false);
         return registration;
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        // or any domain that you want to restrict to
+        configuration.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // Add the method support as you like
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
