@@ -64,4 +64,36 @@ jobs:
             --image gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/apache/fineract:1.6.1
             --platform "managed" \
             --port ${{ env.PORT }} \
+            --set-env-vars "FINERACT_NODE_ID=1" \
+            --set-env-vars "FINERACT_HIKARI_DRIVER_SOURCE_CLASS_NAME=org.mariadb.jdbc.Driver" \
+            --set-env-vars "FINERACT_HIKARI_JDBC_URL=jdbc:mariadb://10.123.176.2:3306/fineract_tenants" \
+            --set-env-vars "FINERACT_HIKARI_USERNAME=root" \
+            --set-env-vars "FINERACT_HIKARI_PASSWORD=yfpqNI05n1A0bjOv" \
+            --set-env-vars "FINERACT_HIKARI_MINIMUM_IDLE=3" \
+            --set-env-vars "FINERACT_HIKARI_MAXIMUM_POOL_SIZE=10" \
+            --set-env-vars "FINERACT_HIKARI_IDLE_TIMEOUT=60000" \
+            --set-env-vars "FINERACT_HIKARI_CONNECTION_TIMEOUT=20000" \
+            --set-env-vars "FINERACT_HIKARI_TEST_QUERY=SELECT 1" \
+            --set-env-vars "FINERACT_HIKARI_AUTO_COMMIT=true" \
+            --set-env-vars "FINERACT_HIKARI_DS_PROPERTIES_CACHE_PREP_STMTS=true" \
+            --set-env-vars "FINERACT_HIKARI_DS_PROPERTIES_PREP_STMT_CACHE_SIZE=250" \
+            --set-env-vars "FINERACT_HIKARI_DS_PROPERTIES_PREP_STMT_CACHE_SQL_LIMIT=2048" \
+            --set-env-vars "FINERACT_HIKARI_DS_PROPERTIES_USE_SERVER_PREP_STMTS=true" \
+            --set-env-vars "FINERACT_HIKARI_DS_PROPERTIES_USE_LOCAL_SESSION_STATE=true" \
+            --set-env-vars "FINERACT_HIKARI_DS_PROPERTIES_REWRITE_BATCHED_STATEMENTS=true" \
+            --set-env-vars "FINERACT_HIKARI_DS_PROPERTIES_CACHE_RESULT_SET_METADATA=true" \
+            --set-env-vars "FINERACT_HIKARI_DS_PROPERTIES_CACHE_SERVER_CONFIGURATION=true" \
+            --set-env-vars "FINERACT_HIKARI_DS_PROPERTIES_ELIDE_SET_AUTO_COMMITS=true" \
+            --set-env-vars "FINERACT_HIKARI_DS_PROPERTIES_MAINTAIN_TIME_STATS=false" \
+            --set-env-vars "FINERACT_HIKARI_DS_PROPERTIES_LOG_SLOW_QUERIES=true" \
+            --set-env-vars "FINERACT_HIKARI_DS_PROPERTIES_DUMP_QUERIES_IN_EXCEPTION=true" \
+            --set-env-vars "FINERACT_DEFAULT_TENANTDB_HOSTNAME=10.123.176.2" \
+            --set-env-vars "FINERACT_DEFAULT_TENANTDB_PORT=3306" \
+            --set-env-vars "FINERACT_DEFAULT_TENANTDB_UID=root" \
+            --set-env-vars "FINERACT_DEFAULT_TENANTDB_PWD=yfpqNI05n1A0bjOv" \
+            --set-env-vars "FINERACT_DEFAULT_TENANTDB_CONN_PARAMS=" \
+            --set-env-vars "FINERACT_DEFAULT_TENANTDB_TIMEZONE=Asia/Kolkata" \
+            --set-env-vars "FINERACT_DEFAULT_TENANTDB_IDENTIFIER=default" \
+            --set-env-vars "FINERACT_DEFAULT_TENANTDB_NAME=fineract_default" \
+            --set-env-vars "FINERACT_DEFAULT_TENANTDB_DESCRIPTION=Default Demo Tenant"
             --quiet
