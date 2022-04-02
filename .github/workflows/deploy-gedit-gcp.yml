@@ -59,6 +59,4 @@ jobs:
             --image=gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/apache/fineract:1.6.1 \
             --port=8443  \
             --region=us-central1  \
-            --allow-unauthenticated  \
-            --platform "managed" \
             --quiet
