@@ -33,10 +33,17 @@ jobs:
         with:
           project_id: ${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}
 
-      - run: gcloud components install beta
+      # Deploy image to Cloud Run
+      - name: Deploy
+        run: |
+            docker pull fintecheando/fineract:1.6.1
 
-      - run: JOBS=$(gcloud beta builds list --ongoing --format="value[terminator=' '](id)") && [ ! -z "$JOBS" ] && echo "Cancelling $JOBS..." && gcloud builds cancel $JOBS --no-user-output-enabled || true
+        run: |
+            docker tag fintecheando/fineract:1.6.1 gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/fintecheando/fineract:1.6.1
 
-      - run: gcloud beta builds triggers list
+        run: |
+            docker push gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/fintecheando/fineract:1.6.1
 
-      - run: gcloud beta builds triggers run deploy-demo --branch=gedit-1.6.0
+        run: |
+            gcloud run deploy --image=gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/fintecheando/fineract:1.6.1 \
+              --port=8443 --region=us-central1 --allow-unauthenticated --platform=managed 
