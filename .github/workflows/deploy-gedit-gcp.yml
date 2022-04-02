@@ -33,17 +33,19 @@ jobs:
         with:
           project_id: ${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}
 
-      # Deploy image to Cloud Run
-      - name: Deploy
+      - name: Pull from Docker Hub
         run: |
             docker pull fintecheando/fineract:1.6.1
 
+      - name: Tag the Image for GCR.io Docker Repository
         run: |
             docker tag fintecheando/fineract:1.6.1 gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/fintecheando/fineract:1.6.1
 
+      - name: Push the Image for GCR.io Docker Repository
         run: |
             docker push gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/fintecheando/fineract:1.6.1
 
+      - name: Deploy to Cloud Run  
         run: |
             gcloud run deploy --image=gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/fintecheando/fineract:1.6.1 \
               --port=8443 --region=us-central1 --allow-unauthenticated --platform=managed 
