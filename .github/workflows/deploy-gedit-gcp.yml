@@ -67,6 +67,8 @@ jobs:
             --allow-unauthenticated \ 
             --port ${{ env.PORT }} \
             --add-cloudsql-instances ${{ env.INSTANCE_CONNECTION_NAME }} \
+            --set-env-vars INSTANCE_CONNECTION_NAME=${{ env.INSTANCE_CONNECTION_NAME }} \
+            --set-env-vars INSTANCE_UNIX_SOCKET="/cloudsql/${{ env.INSTANCE_CONNECTION_NAME }}" \
             --set-env-vars "FINERACT_NODE_ID=1" \
             --set-env-vars ${{ secrets.FINERACT_HIKARI_DRIVER_SOURCE_CLASS_NAME }} \
             --set-env-vars ${{ secrets.FINERACT_HIKARI_JDBC_URL }} \
