@@ -195,6 +195,16 @@ public class FineractPlatformTenantConnection {
         return sb.toString();
     }
 
+    public static String toJdbcUrlGCP(String protocol, String db, String parameters) {
+        StringBuilder sb = new StringBuilder(protocol).append(":///").append(db);
+
+        if (!StringUtils.isEmpty(parameters)) {
+            sb.append('?').append(parameters);
+        }
+
+        return sb.toString();
+    }
+
     public static String toProtocol(DataSource dataSource) {
         try {
             String url = dataSource.getConnection().getMetaData().getURL();
