@@ -120,7 +120,8 @@ dependencies {
 
             // Although fineract (at the time of writing) doesn't have any compile time dep. on httpclient,
             // it's useful to have this for the Spring Boot TestRestTemplate http://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#boot-features-rest-templates-test-utility
-            'org.apache.httpcomponents:httpclient'
+            'org.apache.httpcomponents:httpclient',
+            'com.google.cloud.sql:mysql-socket-factory-connector-j-8:1.4.4'
             )
 
     // testCompile dependencies are ONLY used in src/test, not src/main.

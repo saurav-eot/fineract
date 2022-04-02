@@ -24,7 +24,7 @@ jobs:
         java-version: '17'
         distribution: 'zulu'
 
-    - name: docker login
+    - name: Docker Hub Login
       env:
         DOCKER_USER: ${{secrets.DOCKER_USER}}
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
