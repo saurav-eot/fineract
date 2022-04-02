@@ -12,6 +12,7 @@ name: Deploy to Gedit GCP Instance
 env:  
   SERVICE: fineract
   REGION: us-central1
+  INSTANCE_CONNECTION_NAME: mifos-308109:us-central1:fineractmysql1
   PORT: 8443
 
 on:
@@ -64,6 +65,7 @@ jobs:
             --image gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/apache/fineract:1.6.1 \
             --platform "managed" \
             --port ${{ env.PORT }} \
+            --add-cloudsql-instances ${{ env.INSTANCE_CONNECTION_NAME }} \
             --set-env-vars "FINERACT_NODE_ID=1" \
             --set-env-vars ${{ secrets.FINERACT_HIKARI_DRIVER_SOURCE_CLASS_NAME }} \
             --set-env-vars ${{ secrets.FINERACT_HIKARI_JDBC_URL }} \
