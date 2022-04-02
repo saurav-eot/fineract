@@ -9,6 +9,9 @@
 #
 
 name: Deploy to Gedit GCP Instance
+env:  
+  SERVICE: fineract
+  REGION: us-central1
 
 on:
   push:
@@ -54,9 +57,9 @@ jobs:
             docker push gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/apache/fineract:1.6.1
 
       - name: Deploy to Cloud Run  
-        run: |
-            gcloud run deploy fineract \ 
-            --region us-central1  \
-            --image gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/apache/fineract:1.6.1 \
-            --platform "managed" \                        
+        run: |-
+            gcloud run deploy ${{ env.SERVICE }} \
+            --region ${{ env.REGION }} \
+            --image gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/apache/fineract:1.6.1
+            --platform "managed" \
             --quiet
