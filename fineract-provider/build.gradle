@@ -315,7 +315,7 @@ jib {
     allowInsecureRegistries = true
 
     dependencies {        
-        implementation 'mysql:mysql-connector-java:8.0.28'
+        implementation 'com.google.cloud.sql:mysql-socket-factory-connector-j-8:1.4.4'
     }
 
     extraDirectories {
