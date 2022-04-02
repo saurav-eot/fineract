@@ -55,6 +55,10 @@ jobs:
 
       - name: Deploy to Cloud Run  
         run: |
-            gcloud run deploy --image=gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/apache/fineract:1.6.1 \
-            --port=8443 --region=us-central1 --allow-unauthenticated --platform "managed" \
+            gcloud run deploy fineract \ 
+            --image=gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/apache/fineract:1.6.1 \
+            --port=8443  \
+            --region=us-central1  \
+            --allow-unauthenticated  \
+            --platform "managed" \
             --quiet
