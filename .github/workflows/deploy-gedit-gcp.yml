@@ -12,6 +12,7 @@ name: Deploy to Gedit GCP Instance
 env:  
   SERVICE: fineract
   REGION: us-central1
+  PORT: 8443
 
 on:
   push:
@@ -62,4 +63,5 @@ jobs:
             --region ${{ env.REGION }} \
             --image gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/apache/fineract:1.6.1
             --platform "managed" \
+            --port ${{ env.PORT }} \
             --quiet
