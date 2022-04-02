@@ -21,6 +21,11 @@ jobs:
     if: github.repository == 'openMF/fineract'
     runs-on: ubuntu-latest
 
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
     steps:
       - uses: actions/checkout@v2
 
@@ -33,19 +38,23 @@ jobs:
         with:
           project_id: ${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}
 
+      - name: Authorize Docker push
+        run: gcloud auth configure-docker    
+
       - name: Pull from Docker Hub
         run: |
             docker pull fintecheando/fineract:1.6.1
 
       - name: Tag the Image for GCR.io Docker Repository
         run: |
-            docker tag fintecheando/fineract:1.6.1 gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/fintecheando/fineract:1.6.1
+            docker tag fintecheando/fineract:1.6.1 gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/apache/fineract:1.6.1
 
       - name: Push the Image for GCR.io Docker Repository
         run: |
-            docker push gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/fintecheando/fineract:1.6.1
+            docker push gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/apache/fineract:1.6.1
 
       - name: Deploy to Cloud Run  
         run: |
-            gcloud run deploy --image=gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/fintecheando/fineract:1.6.1 \
-              --port=8443 --region=us-central1 --allow-unauthenticated --platform=managed 
+            gcloud run deploy --image=gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/apache/fineract:1.6.1 \
+            --port=8443 --region=us-central1 --allow-unauthenticated --platform "managed" \
+            --quiet
