@@ -315,7 +315,8 @@ jib {
     allowInsecureRegistries = true
 
     dependencies {
-        implementation 'org.mariadb.jdbc:mariadb-java-client:2.7.4'
+        implementation 'org.mariadb.jdbc:mariadb-java-client:2.7.4',
+        implementation 'mysql:mysql-connector-java:8.0.28'
     }
 
     extraDirectories {
