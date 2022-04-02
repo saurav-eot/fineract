@@ -61,7 +61,7 @@ jobs:
         run: |-
             gcloud run deploy ${{ env.SERVICE }} \
             --region ${{ env.REGION }} \
-            --image gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/apache/fineract:1.6.1
+            --image gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/apache/fineract:1.6.1 \
             --platform "managed" \
             --port ${{ env.PORT }} \
             --set-env-vars "FINERACT_NODE_ID=1" \
@@ -95,5 +95,5 @@ jobs:
             --set-env-vars "FINERACT_DEFAULT_TENANTDB_TIMEZONE=Asia/Kolkata" \
             --set-env-vars "FINERACT_DEFAULT_TENANTDB_IDENTIFIER=default" \
             --set-env-vars "FINERACT_DEFAULT_TENANTDB_NAME=fineract_default" \
-            --set-env-vars "FINERACT_DEFAULT_TENANTDB_DESCRIPTION=Default Demo Tenant"
+            --set-env-vars "FINERACT_DEFAULT_TENANTDB_DESCRIPTION=Default Demo Tenant" \
             --quiet
