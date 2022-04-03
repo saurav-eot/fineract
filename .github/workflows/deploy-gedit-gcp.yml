@@ -68,7 +68,6 @@ jobs:
             --image gcr.io/${{ secrets.GOOGLE_PROJECT_ID_GEDIT }}/apache/fineract:1.6.1 \
             --platform "managed" \
             --allow-unauthenticated \
-            --port ${{ env.PORT }} \
             --memory ${{ env.MEMORY }} \
             --min-instances ${{ env.MIN_INSTANCES }} \
             --max-instances ${{ env.MAX_INSTANCES }} \
