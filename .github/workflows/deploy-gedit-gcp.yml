@@ -12,7 +12,7 @@ name: Deploy to Gedit GCP Instance
 env:  
   SERVICE: fineract
   REGION: us-central1
-  INSTANCE_CONNECTION_NAME: 'mifos-308109:us-central1:fineractmysql1'
+  INSTANCE_CONNECTION_NAME: "mifos-308109:us-central1:fineractmysql1"
   PORT: 8080
 
 on:
@@ -69,10 +69,10 @@ jobs:
             --set-env-vars "INSTANCE_CONNECTION_NAME=${{ env.INSTANCE_CONNECTION_NAME }}" \
             --set-env-vars "INSTANCE_UNIX_SOCKET=/cloudsql/${{ env.INSTANCE_CONNECTION_NAME }}" \
             --set-env-vars "FINERACT_NODE_ID=1" \
-            --set-env-vars ${{ secrets.FINERACT_HIKARI_DRIVER_SOURCE_CLASS_NAME }} \
-            --set-env-vars ${{ secrets.FINERACT_HIKARI_JDBC_URL }} \
+            --set-env-vars "FINERACT_HIKARI_DRIVER_SOURCE_CLASS_NAME=com.mysql.cj.jdbc.Driver"  \
+            --set-env-vars "FINERACT_HIKARI_JDBC_URL=${{ secrets.FINERACT_HIKARI_JDBC_URL }}" \
             --set-env-vars "FINERACT_HIKARI_USERNAME=root" \
-            --set-env-vars ${{ secrets.FINERACT_HIKARI_PASSWORD }} \
+            --set-env-vars "FINERACT_HIKARI_PASSWORD=${{ secrets.FINERACT_HIKARI_PASSWORD }}" \
             --set-env-vars "FINERACT_HIKARI_MINIMUM_IDLE=3" \
             --set-env-vars "FINERACT_HIKARI_MAXIMUM_POOL_SIZE=10" \
             --set-env-vars "FINERACT_HIKARI_IDLE_TIMEOUT=60000" \
@@ -94,7 +94,7 @@ jobs:
             --set-env-vars "FINERACT_DEFAULT_TENANTDB_HOSTNAME=fineractmysql" \
             --set-env-vars "FINERACT_DEFAULT_TENANTDB_PORT=3306" \
             --set-env-vars "FINERACT_DEFAULT_TENANTDB_UID=root" \
-            --set-env-vars ${{ secrets.FINERACT_DEFAULT_TENANTDB_PWD }} \
+            --set-env-vars "FINERACT_DEFAULT_TENANTDB_PWD=${{ secrets.FINERACT_DEFAULT_TENANTDB_PWD }}" \
             --set-env-vars "FINERACT_DEFAULT_TENANTDB_CONN_PARAMS=" \
             --set-env-vars "FINERACT_DEFAULT_TENANTDB_TIMEZONE=Asia/Kolkata" \
             --set-env-vars "FINERACT_DEFAULT_TENANTDB_IDENTIFIER=default" \
