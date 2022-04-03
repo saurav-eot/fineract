@@ -80,11 +80,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilterAfter(tenantAwareBasicAuthenticationFilter(), SecurityContextPersistenceFilter.class) //
                 .addFilterAfter(twoFactorAuthenticationFilter, BasicAuthenticationFilter.class); //
 
+        /*            
         if (serverProperties.getSsl().isEnabled()) {
             http.requiresChannel(channel -> channel.antMatchers("/api/**").requiresSecure());
         } else {
             http.requiresChannel(channel -> channel.antMatchers("/api/**").requiresInsecure());
-        }
+        }*/
     }
 
     @Bean
