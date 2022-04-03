@@ -32,12 +32,12 @@
 
     <!-- See https://github.com/apache/fineract/#logging-guidelines for why by default we log only to INFO, only (WARN and) ERROR
          but it's still possible to override this using java -Dlogging.level.root=info -jar fineract-provider.jar, as per https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-custom-log-levels -->
-    <root level="warn">
+    <root level="debug">
         <appender-ref ref="CONSOLE" />
     </root>
 
     <!-- But these three INFO are still handy ;-) just to see when it's up and running -->
-    <logger name="org.springframework.boot.web.embedded.tomcat.TomcatWebServer" level="info" />
-    <logger name="org.apache.fineract.ServerApplication" level="info" />
+    <logger name="org.springframework.boot.web.embedded.tomcat.TomcatWebServer" level="debug" />
+    <logger name="org.apache.fineract.ServerApplication" level="debug" />
     <logger name="liquibase" level="info" />
 </configuration>
