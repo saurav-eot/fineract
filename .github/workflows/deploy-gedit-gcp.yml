@@ -66,6 +66,8 @@ jobs:
             --platform "managed" \
             --port ${{ env.PORT }} \
             --add-cloudsql-instances ${{ env.INSTANCE_CONNECTION_NAME }} \
+            --set-env-vars "FINERACT_SERVER_SSL_ENABLED=false"
+            --set-env-vars "FINERACT_SERVER_PORT=${{ env.PORT }}"
             --set-env-vars "INSTANCE_CONNECTION_NAME=${{ env.INSTANCE_CONNECTION_NAME }}" \
             --set-env-vars "INSTANCE_UNIX_SOCKET=/cloudsql/${{ env.INSTANCE_CONNECTION_NAME }}" \
             --set-env-vars "FINERACT_NODE_ID=1" \
