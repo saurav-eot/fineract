@@ -73,8 +73,9 @@ jobs:
             --min-instances ${{ env.MIN_INSTANCES }} \
             --max-instances ${{ env.MAX_INSTANCES }} \
             --add-cloudsql-instances ${{ env.INSTANCE_CONNECTION_NAME }} \
+            --set-env-vars "FINERACT_SECURITY_ON_GCP=true" \
             --set-env-vars "FINERACT_SECURITY_BASICAUTH_ENABLED=true" \
-            --set-env-vars "FINERACT_SECURITY_OAUTH_ENABLED=false" \
+            --set-env-vars "FINERACT_SECURITY_OAUTH_ENABLED=false" \            
             --set-env-vars "FINERACT_SERVER_SSL_ENABLED=false" \
             --set-env-vars "FINERACT_SERVER_PORT=${{ env.PORT }}" \
             --set-env-vars "INSTANCE_CONNECTION_NAME=${{ env.INSTANCE_CONNECTION_NAME }}" \

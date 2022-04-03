@@ -23,6 +23,7 @@ import org.apache.fineract.infrastructure.security.filter.TenantAwareBasicAuthen
 import org.apache.fineract.infrastructure.security.filter.TwoFactorAuthenticationFilter;
 import org.apache.fineract.infrastructure.security.service.TenantAwareJpaPlatformUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -56,6 +57,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private ServerProperties serverProperties;
 
+    @Value("${fineract.security.on.gcp}")
+    private Boolean securityOnGcp;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
@@ -80,12 +84,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilterAfter(tenantAwareBasicAuthenticationFilter(), SecurityContextPersistenceFilter.class) //
                 .addFilterAfter(twoFactorAuthenticationFilter, BasicAuthenticationFilter.class); //
 
-        /*            
-        if (serverProperties.getSsl().isEnabled()) {
-            http.requiresChannel(channel -> channel.antMatchers("/api/**").requiresSecure());
-        } else {
-            http.requiresChannel(channel -> channel.antMatchers("/api/**").requiresInsecure());
-        }*/
+        if(securityOnGcp==false) {
+            if (serverProperties.getSsl().isEnabled()) {
+                http.requiresChannel(channel -> channel.antMatchers("/api/**").requiresSecure());
+            } else {
+                http.requiresChannel(channel -> channel.antMatchers("/api/**").requiresInsecure());
+            }
+        }
     }
 
     @Bean
