@@ -26,6 +26,12 @@ apply plugin: 'com.gorylenko.gradle-git-properties'
 apply plugin: 'io.swagger.core.v3.swagger-gradle-plugin'
 apply plugin: 'com.google.cloud.tools.jib'
 
+repositories {
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://nexus.pentaho.org/content/groups/omni" }
+        maven { url 'https://repo.orl.eng.hitachivantara.com/artifactory/pnt-mvn/'  }
+    }
+
 // Custom OpenJPA enhancement
 compileJava.doLast {
     def enhanceIncludes = [
@@ -270,7 +276,7 @@ jar.dependsOn bootJar
 
 jib {
     from {
-        image = 'azul/zulu-openjdk-alpine:17'
+        image = 'fintecheando/ubutu-mifos:1.6.1'
     }
 
     to {
@@ -299,7 +305,8 @@ jib {
             '--add-opens=java.base/java.security=ALL-UNNAMED',
             '--add-opens=java.base/java.util=ALL-UNNAMED',
             '--add-opens=java.management/javax.management=ALL-UNNAMED',
-            '--add-opens=java.naming/javax.naming=ALL-UNNAMED'
+            '--add-opens=java.naming/javax.naming=ALL-UNNAMED',
+            '--add-opens=java.base/sun.net.www.protocol.jar=ALL-UNNAMED'
         ]
         args = [
             '-Duser.home=/tmp',
