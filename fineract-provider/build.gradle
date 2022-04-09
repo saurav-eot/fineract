@@ -270,7 +270,7 @@ jar.dependsOn bootJar
 
 jib {
     from {
-        image = 'azul/zulu-openjdk-alpine:17'
+        image = 'fintecheando/ubutu-mifos:1.6.1'
     }
 
     to {
@@ -324,7 +324,7 @@ jib {
                 from = file('build/generated/swagger-ui')
                 into = "/app/classes"
             }
-        }
+        }z
     }
 
     pluginExtensions {
