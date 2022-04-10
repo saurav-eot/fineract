@@ -306,7 +306,7 @@ jib {
             '--add-opens=java.base/java.util=ALL-UNNAMED',
             '--add-opens=java.management/javax.management=ALL-UNNAMED',
             '--add-opens=java.naming/javax.naming=ALL-UNNAMED',
-            '--add-opens java.base/sun.net.www.protocol.jar=ALL-UNNAMED'
+            '--add-opens=java.base/sun.net.www.protocol.jar=ALL-UNNAMED'
         ]
         args = [
             '-Duser.home=/tmp',
