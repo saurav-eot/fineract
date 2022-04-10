@@ -112,4 +112,5 @@ jobs:
             --set-env-vars "FINERACT_DEFAULT_TENANTDB_IDENTIFIER=default" \
             --set-env-vars "FINERACT_DEFAULT_TENANTDB_NAME=fineract_default" \
             --set-env-vars "FINERACT_DEFAULT_TENANTDB_DESCRIPTION=Default Demo Tenant" \
+            --set-env-vars "fineract.pentaho.reports.path=/home/fineract/.mifosx/pentahoReports" \
             --quiet
