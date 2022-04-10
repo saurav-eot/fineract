@@ -62,6 +62,9 @@ public class PentahoReportingProcessServiceImpl implements ReportingProcessServi
 
     private static final Logger logger = LoggerFactory.getLogger(PentahoReportingProcessServiceImpl.class);
     public static final String MIFOS_BASE_DIR = System.getProperty("user.home") + File.separator + ".mifosx";
+    
+    @Value("${fineract.pentaho.reports.path}")
+    private String FINERACT_PENTAHO_BASE_DIR;
 
     private final PlatformSecurityContext context;
     private final DataSource tenantDataSource;
@@ -92,7 +95,8 @@ public class PentahoReportingProcessServiceImpl implements ReportingProcessServi
             throw new PlatformDataIntegrityException("error.msg.invalid.outputType", "No matching Output Type: " + outputType);
         }
 
-        final var reportPath = MIFOS_BASE_DIR + File.separator + "pentahoReports" + File.separator + reportName + ".prpt";
+        //final var reportPath = MIFOS_BASE_DIR + File.separator + "pentahoReports" + File.separator + reportName + ".prpt";
+        final var reportPath = getReportPath() + reportName + ".prpt";
         var outPutInfo = "Report path: " + reportPath;
         logger.info("Report path: {}", outPutInfo);
 
@@ -234,5 +238,12 @@ public class PentahoReportingProcessServiceImpl implements ReportingProcessServi
             }
         }
         return reportParams;
+    }
+
+    private String getReportPath() {
+        if (FINERACT_PENTAHO_BASE_DIR != null) {
+            return this.FINERACT_PENTAHO_BASE_DIR + File.separator;
+        }
+        return this.MIFOS_BASE_DIR + File.separator + "pentahoReports" + File.separator;
     }
 }
