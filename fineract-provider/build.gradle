@@ -308,7 +308,7 @@ jib {
             '--add-opens=java.naming/javax.naming=ALL-UNNAMED'
         ]
         args = [
-            '-Duser.home=/home/fineract',
+            '-Duser.home=/tmp',
             '-Dfile.encoding=UTF-8',
             '-Duser.timezone=UTC',
             '-Djava.security.egd=file:/dev/./urandom'
