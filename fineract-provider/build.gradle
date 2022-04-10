@@ -26,6 +26,12 @@ apply plugin: 'com.gorylenko.gradle-git-properties'
 apply plugin: 'io.swagger.core.v3.swagger-gradle-plugin'
 apply plugin: 'com.google.cloud.tools.jib'
 
+repositories {
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://nexus.pentaho.org/content/groups/omni" }
+        maven { url 'https://repo.orl.eng.hitachivantara.com/artifactory/pnt-mvn/'  }
+    }
+
 // Custom OpenJPA enhancement
 compileJava.doLast {
     def enhanceIncludes = [
