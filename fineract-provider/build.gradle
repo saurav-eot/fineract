@@ -314,7 +314,7 @@ jib {
 
     allowInsecureRegistries = true
 
-    dependencies {        
+    dependencies {
         implementation 'mysql:mysql-connector-java:8.0.28'
     }
 

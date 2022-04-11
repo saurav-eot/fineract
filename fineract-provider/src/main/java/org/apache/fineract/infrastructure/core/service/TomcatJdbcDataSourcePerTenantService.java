@@ -90,11 +90,10 @@ public class TomcatJdbcDataSourcePerTenantService implements RoutingDataSourceSe
         String jdbcUrl;
         if (environment.getProperty("FINERACT_HIKARI_DS_PROPERTIES_INSTANCE_CONNECTION_NAME") != null) {
             jdbcUrl = toJdbcUrlGCP(protocol, tenantConnectionObj.getSchemaName(), tenantConnectionObj.getSchemaConnectionParameters());
-        }
-        else {
+        } else {
             jdbcUrl = toJdbcUrl(protocol, tenantConnectionObj.getSchemaServer(), tenantConnectionObj.getSchemaServerPort(),
-                tenantConnectionObj.getSchemaName(), tenantConnectionObj.getSchemaConnectionParameters());
-        }        
+                    tenantConnectionObj.getSchemaName(), tenantConnectionObj.getSchemaConnectionParameters());
+        }
 
         HikariConfig config = new HikariConfig();
         config.setDriverClassName(hikariConfig.getDriverClassName());
