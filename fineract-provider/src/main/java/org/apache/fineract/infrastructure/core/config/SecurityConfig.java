@@ -68,7 +68,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http //
-                .cors().and().csrf().disable() // NOSONAR only creating a service that is used by non-browser clients
+                .cors().and()
+                .csrf().disable() // NOSONAR only creating a service that is used by non-browser clients
                 .antMatcher("/api/**").authorizeRequests() //
                 .antMatchers(HttpMethod.OPTIONS, "/api/**").permitAll() //
                 .antMatchers(HttpMethod.POST, "/api/*/echo").permitAll() //
@@ -78,7 +79,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/*/self/registration/user").permitAll() //
                 .antMatchers(HttpMethod.POST, "/api/*/twofactor/validate").fullyAuthenticated() //
                 .antMatchers("/api/*/twofactor").fullyAuthenticated() //
-                .antMatchers("/api/**").access("isFullyAuthenticated() and hasAuthority('TWOFACTOR_AUTHENTICATED')").and() //
+                .antMatchers("/api/**").access("isFullyAuthenticated() and hasAuthority('TWOFACTOR_AUTHENTICATED')")
+                .and() //
                 .httpBasic() //
                 .authenticationEntryPoint(basicAuthenticationEntryPoint()) //
                 .and() //
@@ -156,7 +158,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("*"));
         // or any domain that you want to restrict to
-        configuration.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization"));
+        configuration.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization", "fineract-platform-tenantid"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         // Add the method support as you like
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

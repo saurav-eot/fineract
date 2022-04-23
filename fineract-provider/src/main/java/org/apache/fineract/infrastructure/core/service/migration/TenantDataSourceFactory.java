@@ -62,14 +62,15 @@ public class TenantDataSourceFactory {
         dataSource.setUsername(tenantConnection.getSchemaUsername());
         dataSource.setPassword(tenantConnection.getSchemaPassword());
         String protocol = toProtocol(tenantDataSource);
-
+        
         Environment environment = context.getEnvironment();
         String tenantJdbcUrl;
         if (environment.getProperty("FINERACT_HIKARI_DS_PROPERTIES_INSTANCE_CONNECTION_NAME") != null) {
             tenantJdbcUrl = toJdbcUrlGCP(protocol, tenantConnection.getSchemaName(), tenantConnection.getSchemaConnectionParameters());
-        } else {
+        }
+        else {
             tenantJdbcUrl = toJdbcUrl(protocol, tenantConnection.getSchemaServer(), tenantConnection.getSchemaServerPort(),
-                    tenantConnection.getSchemaName(), tenantConnection.getSchemaConnectionParameters());
+                tenantConnection.getSchemaName(), tenantConnection.getSchemaConnectionParameters());
         }
         LOG.debug("JDBC URL for tenant {} is {}", tenant.getTenantIdentifier(), tenantJdbcUrl);
         dataSource.setJdbcUrl(tenantJdbcUrl);
