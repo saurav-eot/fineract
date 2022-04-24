@@ -28,12 +28,14 @@ import liquibase.exception.LiquibaseException;
 import liquibase.integration.spring.SpringLiquibase;
 import org.apache.fineract.infrastructure.core.config.FineractProperties;
 import org.apache.fineract.infrastructure.core.domain.FineractPlatformTenant;
+import org.apache.fineract.infrastructure.core.utils.ProfileUtils;
 import org.apache.fineract.infrastructure.security.service.TenantDetailsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 /**
@@ -46,6 +48,7 @@ public class TenantDatabaseUpgradeService implements InitializingBean {
     private static final String TENANT_STORE_DB_CONTEXT = "tenant_store_db";
     private static final String INITIAL_SWITCH_CONTEXT = "initial_switch";
     private static final String TENANT_DB_CONTEXT = "tenant_db";
+    private ProfileUtils profileUtils;
 
     private final TenantDetailsService tenantDetailsService;
     private final HikariDataSource tenantDataSource;
@@ -58,13 +61,14 @@ public class TenantDatabaseUpgradeService implements InitializingBean {
     public TenantDatabaseUpgradeService(final TenantDetailsService detailsService,
             @Qualifier("hikariTenantDataSource") final HikariDataSource tenantDataSource, final FineractProperties fineractProperties,
             TenantDatabaseStateVerifier databaseStateVerifier, ExtendedSpringLiquibaseFactory liquibaseFactory,
-            TenantDataSourceFactory tenantDataSourceFactory) {
+            TenantDataSourceFactory tenantDataSourceFactory, final ApplicationContext context) {
         this.tenantDetailsService = detailsService;
         this.tenantDataSource = tenantDataSource;
         this.fineractProperties = fineractProperties;
         this.databaseStateVerifier = databaseStateVerifier;
         this.liquibaseFactory = liquibaseFactory;
         this.tenantDataSourceFactory = tenantDataSourceFactory;
+        profileUtils = new ProfileUtils(context.getEnvironment());
     }
 
     @Override
@@ -74,8 +78,10 @@ public class TenantDatabaseUpgradeService implements InitializingBean {
             return;
         }
         try {
-            upgradeTenantStore();
-            upgradeIndividualTenants();
+            if (profileUtils.isActiveProfile(ProfileUtils.SPRING_UPGRADEDB_PROFILE_NAME)) {
+                upgradeTenantStore();
+                upgradeIndividualTenants();
+            }
         } catch (LiquibaseException e) {
             throw new RuntimeException("Error while migrating the schema", e);
         }

@@ -21,6 +21,7 @@ package org.apache.fineract.infrastructure.creditbureau.service;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.List;
 import org.apache.fineract.infrastructure.core.service.RoutingDataSource;
 import org.apache.fineract.infrastructure.creditbureau.data.CreditBureauLoanProductMappingData;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
@@ -106,7 +107,11 @@ public class CreditBureauLoanProductMappingReadPlatformServiceImpl implements Cr
         final CreditBureauLoanProductMapper rm = new CreditBureauLoanProductMapper();
         final String sql = "select " + rm.schema() + " and cblp.loan_product_id=?";
 
-        return this.jdbcTemplate.queryForObject(sql, rm, new Object[] { loanProductId });
+        List<CreditBureauLoanProductMappingData> mappingsByLoan = this.jdbcTemplate.query(sql, rm, new Object[] { loanProductId });
+        if (mappingsByLoan.isEmpty()) {
+            return null;
+        }
+        return mappingsByLoan.get(0);
     }
 
     @Override

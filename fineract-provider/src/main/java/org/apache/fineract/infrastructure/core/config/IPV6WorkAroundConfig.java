@@ -27,9 +27,9 @@ import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
 public class IPV6WorkAroundConfig {
 
     @Bean
-	public ForwardedHeaderTransformer forwardedHeaderTransformer() {
-		ForwardedHeaderTransformer transformer = new ForwardedHeaderTransformer();
-		transformer.setRemoveOnly(true);
-		return transformer;
-	}
+    public ForwardedHeaderTransformer forwardedHeaderTransformer() {
+        ForwardedHeaderTransformer transformer = new ForwardedHeaderTransformer();
+        transformer.setRemoveOnly(true);
+        return transformer;
+    }
 }

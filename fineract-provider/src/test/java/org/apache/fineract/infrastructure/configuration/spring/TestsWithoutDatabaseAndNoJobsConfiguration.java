@@ -59,7 +59,7 @@ public class TestsWithoutDatabaseAndNoJobsConfiguration extends AbstractApplicat
      */
     @Bean
     public TenantDatabaseUpgradeService tenantDatabaseUpgradeService() {
-        return new TenantDatabaseUpgradeService(null, null, null, null, null, null) {
+        return new TenantDatabaseUpgradeService(null, null, null, null, null, null, null) {
 
             @Override
             public void afterPropertiesSet() {

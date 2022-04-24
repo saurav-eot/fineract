@@ -42,6 +42,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.context.ApplicationContext;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -59,13 +60,15 @@ class TenantDatabaseUpgradeServiceTest {
     private ExtendedSpringLiquibaseFactory liquibaseFactory;
     @Mock
     private TenantDataSourceFactory tenantDataSourceFactory;
+    @Mock
+    private ApplicationContext context;
 
     private TenantDatabaseUpgradeService underTest;
 
     @BeforeEach
     public void setUp() {
         underTest = new TenantDatabaseUpgradeService(tenantDetailsService, tenantDataSource, fineractProperties, databaseStateVerifier,
-                liquibaseFactory, tenantDataSourceFactory);
+                liquibaseFactory, tenantDataSourceFactory, context);
     }
 
     @Test

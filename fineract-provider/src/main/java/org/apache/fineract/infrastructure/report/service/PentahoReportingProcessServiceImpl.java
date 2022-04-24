@@ -18,38 +18,36 @@
  */
 package org.apache.fineract.infrastructure.report.service;
 
+import static org.apache.fineract.infrastructure.core.domain.FineractPlatformTenantConnection.toJdbcUrl;
+import static org.apache.fineract.infrastructure.core.domain.FineractPlatformTenantConnection.toJdbcUrlGCP;
+import static org.apache.fineract.infrastructure.core.domain.FineractPlatformTenantConnection.toProtocol;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.sql.Date;
 import java.util.HashMap;
 import java.util.Map;
+import javax.sql.DataSource;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.infrastructure.core.api.ApiParameterHelper;
 import org.apache.fineract.infrastructure.core.exception.PlatformDataIntegrityException;
-import static org.apache.fineract.infrastructure.core.domain.FineractPlatformTenantConnection.toJdbcUrl;
-import static org.apache.fineract.infrastructure.core.domain.FineractPlatformTenantConnection.toProtocol;
-import static org.apache.fineract.infrastructure.core.domain.FineractPlatformTenantConnection.toJdbcUrlGCP;
 import org.apache.fineract.infrastructure.core.service.ThreadLocalContextUtil;
 import org.apache.fineract.infrastructure.report.annotation.ReportService;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.pentaho.reporting.engine.classic.core.ClassicEngineBoot;
 import org.pentaho.reporting.engine.classic.core.DefaultReportEnvironment;
 import org.pentaho.reporting.engine.classic.core.MasterReport;
-import org.pentaho.reporting.engine.classic.core.ReportProcessingException;
 import org.pentaho.reporting.engine.classic.core.modules.output.pageable.pdf.PdfReportUtil;
 import org.pentaho.reporting.engine.classic.core.modules.output.table.csv.CSVReportUtil;
 import org.pentaho.reporting.engine.classic.core.modules.output.table.html.HtmlReportUtil;
 import org.pentaho.reporting.engine.classic.core.modules.output.table.xls.ExcelReportUtil;
 import org.pentaho.reporting.engine.classic.core.parameters.ParameterDefinitionEntry;
 import org.pentaho.reporting.libraries.resourceloader.Resource;
-import org.pentaho.reporting.libraries.resourceloader.ResourceException;
 import org.pentaho.reporting.libraries.resourceloader.ResourceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -62,20 +60,20 @@ import org.springframework.stereotype.Service;
 public class PentahoReportingProcessServiceImpl implements ReportingProcessService {
 
     private static final Logger logger = LoggerFactory.getLogger(PentahoReportingProcessServiceImpl.class);
-    private final String MIFOS_BASE_DIR = System.getProperty("user.home") + File.separator + ".mifosx";
-    
-    @Value("${fineract.pentaho.reports.path}")
-    private String FINERACT_PENTAHO_BASE_DIR;
+    private final String mifosBaseDir = System.getProperty("user.home") + File.separator + ".mifosx";
+
+    @Value("${FINERACT_PENTAHO_REPORTS_PATH}")
+    private String fineractPentahoBaseDir;
 
     private final PlatformSecurityContext context;
     private final DataSource tenantDataSource;
-    
+
     @Autowired
     ApplicationContext contextVar;
 
     @Autowired
     public PentahoReportingProcessServiceImpl(final PlatformSecurityContext context,
-    final @Qualifier("hikariTenantDataSource") DataSource tenantDataSource) {
+            final @Qualifier("hikariTenantDataSource") DataSource tenantDataSource) {
         ClassicEngineBoot.getInstance().start();
         this.tenantDataSource = tenantDataSource;
         this.context = context;
@@ -92,11 +90,13 @@ public class PentahoReportingProcessServiceImpl implements ReportingProcessServi
             outputType = outputTypeParam;
         }
 
-        if ((!outputType.equalsIgnoreCase("HTML") && !outputType.equalsIgnoreCase("PDF") && !outputType.equalsIgnoreCase("XLS") && !outputType.equalsIgnoreCase("XLSX") && !outputType.equalsIgnoreCase("CSV"))) {
+        if ((!outputType.equalsIgnoreCase("HTML") && !outputType.equalsIgnoreCase("PDF") && !outputType.equalsIgnoreCase("XLS")
+                && !outputType.equalsIgnoreCase("XLSX") && !outputType.equalsIgnoreCase("CSV"))) {
             throw new PlatformDataIntegrityException("error.msg.invalid.outputType", "No matching Output Type: " + outputType);
         }
 
-        //final var reportPath = MIFOS_BASE_DIR + File.separator + "pentahoReports" + File.separator + reportName + ".prpt";
+        // final var reportPath = mifosBaseDir + File.separator + "pentahoReports" + File.separator + reportName +
+        // ".prpt";
         final var reportPath = getReportPath() + reportName + ".prpt";
         var outPutInfo = "Report path: " + reportPath;
         logger.info("Report path: {}", outPutInfo);
@@ -113,6 +113,7 @@ public class PentahoReportingProcessServiceImpl implements ReportingProcessServi
             if (locale != null) {
                 reportEnvironment.setLocale(locale);
             }
+
             addParametersToReport(masterReport, reportParams);
 
             final var baos = new ByteArrayOutputStream();
@@ -144,9 +145,9 @@ public class PentahoReportingProcessServiceImpl implements ReportingProcessServi
                 throw new PlatformDataIntegrityException("error.msg.invalid.outputType", "No matching Output Type: " + outputType);
 
             }
-        } catch (final ResourceException | ReportProcessingException | IOException e) {
-            logger.error("Pentaho failed", e);
-            throw new PlatformDataIntegrityException("error.msg.reporting.error", "Pentaho failed: " + e.getMessage());
+        } catch (Throwable t) {
+            logger.error("Pentaho failed", t);
+            throw new PlatformDataIntegrityException("error.msg.reporting.error", "Pentaho failed: " + t.getMessage());
         }
     }
 
@@ -161,7 +162,8 @@ public class PentahoReportingProcessServiceImpl implements ReportingProcessServi
             // currently assuming they come in ok... and if not an error
             for (final ParameterDefinitionEntry paramDefEntry : paramsDefinition.getParameterDefinitions()) {
                 final var paramName = paramDefEntry.getName();
-                if ((!paramName.equals("tenantUrl") && (!paramName.equals("userhierarchy") && !paramName.equals("username") && (!paramName.equals("password") && !paramName.equals("userid"))))) {
+                if ((!paramName.equals("tenantUrl") && (!paramName.equals("userhierarchy") && !paramName.equals("username")
+                        && (!paramName.equals("password") && !paramName.equals("userid"))))) {
 
                     var outPutInfo2 = "paramName:" + paramName;
                     logger.info("paramName: {}", outPutInfo2);
@@ -198,12 +200,11 @@ public class PentahoReportingProcessServiceImpl implements ReportingProcessServi
             String tenantUrl;
             if (environment.getProperty("FINERACT_HIKARI_DS_PROPERTIES_INSTANCE_CONNECTION_NAME") != null) {
                 tenantUrl = toJdbcUrlGCP(protocol, tenantConnection.getSchemaName(), tenantConnection.getSchemaConnectionParameters());
+            } else {
+                tenantUrl = toJdbcUrl(protocol, tenantConnection.getSchemaServer(), tenantConnection.getSchemaServerPort(),
+                        tenantConnection.getSchemaName(), tenantConnection.getSchemaConnectionParameters());
             }
-            else {
-                tenantUrl = toJdbcUrl(protocol ,tenantConnection.getSchemaServer(), tenantConnection.getSchemaServerPort(),
-                    tenantConnection.getSchemaName(), tenantConnection.getSchemaConnectionParameters());
-            } 
-            
+
             final var userhierarchy = currentUser.getOffice().getHierarchy();
             var outPutInfo4 = "db URL:" + tenantUrl + "      userhierarchy:" + userhierarchy;
             logger.info(outPutInfo4);
@@ -217,11 +218,21 @@ public class PentahoReportingProcessServiceImpl implements ReportingProcessServi
             rptParamValues.put("userid", userid);
 
             rptParamValues.put("tenantUrl", tenantUrl);
-            rptParamValues.put("username", tenantConnection.getSchemaUsername());
-            rptParamValues.put("password", tenantConnection.getSchemaPassword());
-        } catch (final Exception e) {
-            logger.error("error.msg.reporting.error:", e);
-            throw new PlatformDataIntegrityException("error.msg.reporting.error", e.getMessage());
+            if (tenantConnection.getSchemaUsername().equalsIgnoreCase("") || tenantConnection.getSchemaUsername() == null) {
+                rptParamValues.put("username", environment.getProperty("FINERACT_DEFAULT_TENANTDB_UID"));
+            } else {
+                rptParamValues.put("username", tenantConnection.getSchemaUsername());
+            }
+
+            if (tenantConnection.getSchemaPassword().equalsIgnoreCase("") || tenantConnection.getSchemaPassword() == null) {
+                rptParamValues.put("password", environment.getProperty("FINERACT_DEFAULT_TENANTDB_PWD"));
+            } else {
+                rptParamValues.put("password", tenantConnection.getSchemaPassword());
+            }
+
+        } catch (Throwable t) {
+            logger.error("error.msg.reporting.error:", t);
+            throw new PlatformDataIntegrityException("error.msg.reporting.error", t.getMessage());
         }
     }
 
@@ -242,9 +253,9 @@ public class PentahoReportingProcessServiceImpl implements ReportingProcessServi
     }
 
     private String getReportPath() {
-        if (FINERACT_PENTAHO_BASE_DIR != null) {
-            return this.FINERACT_PENTAHO_BASE_DIR + File.separator;
+        if (fineractPentahoBaseDir != null) {
+            return this.fineractPentahoBaseDir + File.separator;
         }
-        return this.MIFOS_BASE_DIR + File.separator + "pentahoReports" + File.separator;
+        return this.mifosBaseDir + File.separator + "pentahoReports" + File.separator;
     }
 }
