@@ -113,6 +113,6 @@ jobs:
             --set-env-vars "FINERACT_DEFAULT_TENANTDB_IDENTIFIER=default" \
             --set-env-vars "FINERACT_DEFAULT_TENANTDB_NAME=fineract_default" \
             --set-env-vars "FINERACT_DEFAULT_TENANTDB_DESCRIPTION=Default Demo Tenant" \
-            --set-env-vars "fineract.pentaho.reports.path=/app/pentahoReports" \
+            --set-env-vars "FINERACT_PENTAHO_REPORTS_PATH=/app/pentahoReports" \
             --set-env-vars "FINERACT_HIKARI_DS_PROPERTIES_INSTANCE_CONNECTION_NAME=${{ env.INSTANCE_CONNECTION_NAME }}" \
             --quiet
