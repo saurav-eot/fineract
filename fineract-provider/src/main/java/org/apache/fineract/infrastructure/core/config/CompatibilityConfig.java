@@ -101,6 +101,8 @@ public class CompatibilityConfig {
                 environment.getProperty("FINERACT_HIKARI_DS_PROPERTIES_DUMP_QUERIES_IN_EXCEPTION"));
         LOG.warn("- Env var 'FINERACT_HIKARI_DS_PROPERTIES_INSTANCE_CONNECTION_NAME':  {}",
                 environment.getProperty("FINERACT_HIKARI_DS_PROPERTIES_INSTANCE_CONNECTION_NAME"));
+        LOG.warn("- Env var 'FINERACT_HIKARI_MAX_LIFETIME':  {}",
+                environment.getProperty("FINERACT_HIKARI_MAX_LIFETIME"));
         LOG.warn("===============================================================================================\n");
     }
 
@@ -118,10 +120,12 @@ public class CompatibilityConfig {
         hc.setJdbcUrl(environment.getProperty("fineract_tenants_url"));
         hc.setUsername(environment.getProperty("fineract_tenants_uid"));
         hc.setPassword(environment.getProperty("fineract_tenants_pwd"));
-        hc.setMinimumIdle(3);
-        hc.setMaximumPoolSize(10);
-        hc.setIdleTimeout(60000);
-        hc.setConnectionTestQuery("SELECT 1");
+        hc.setMinimumIdle(environment.getProperty("FINERACT_HIKARI_MINIMUM_IDLE"));
+        hc.setMaximumPoolSize(environment.getProperty("FINERACT_HIKARI_MAXIMUM_POOL_SIZE"));
+        hc.setIdleTimeout(environment.getProperty("FINERACT_HIKARI_IDLE_TIMEOUT"));
+        hc.setMaxLifetime(environment.getProperty("FINERACT_HIKARI_MAX_LIFETIME"));
+        hc.setConnectionTimeout(environment.getProperty("FINERACT_HIKARI_CONNECTION_TIMEOUT"));
+        hc.setConnectionTestQuery(environment.getProperty("FINERACT_HIKARI_TEST_QUERY"));
         hc.setDataSourceProperties(dataSourceProperties());
 
         return hc;
