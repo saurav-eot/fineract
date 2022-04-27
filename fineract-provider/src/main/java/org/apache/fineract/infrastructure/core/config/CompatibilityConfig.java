@@ -120,11 +120,11 @@ public class CompatibilityConfig {
         hc.setJdbcUrl(environment.getProperty("fineract_tenants_url"));
         hc.setUsername(environment.getProperty("fineract_tenants_uid"));
         hc.setPassword(environment.getProperty("fineract_tenants_pwd"));
-        hc.setMinimumIdle(environment.getProperty("FINERACT_HIKARI_MINIMUM_IDLE"));
-        hc.setMaximumPoolSize(environment.getProperty("FINERACT_HIKARI_MAXIMUM_POOL_SIZE"));
-        hc.setIdleTimeout(environment.getProperty("FINERACT_HIKARI_IDLE_TIMEOUT"));
-        hc.setMaxLifetime(environment.getProperty("FINERACT_HIKARI_MAX_LIFETIME"));
-        hc.setConnectionTimeout(environment.getProperty("FINERACT_HIKARI_CONNECTION_TIMEOUT"));
+        hc.setMinimumIdle(Integer.parseInt(environment.getProperty("FINERACT_HIKARI_MINIMUM_IDLE")));
+        hc.setMaximumPoolSize(Integer.parseInt(environment.getProperty("FINERACT_HIKARI_MAXIMUM_POOL_SIZE")));
+        hc.setIdleTimeout(Long.parseLong(environment.getProperty("FINERACT_HIKARI_IDLE_TIMEOUT")));
+        hc.setMaxLifetime(Long.parseLong(environment.getProperty("FINERACT_HIKARI_MAX_LIFETIME")));
+        hc.setConnectionTimeout(Long.parseLong(environment.getProperty("FINERACT_HIKARI_CONNECTION_TIMEOUT")));
         hc.setConnectionTestQuery(environment.getProperty("FINERACT_HIKARI_TEST_QUERY"));
         hc.setDataSourceProperties(dataSourceProperties());
 
