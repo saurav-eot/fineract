@@ -16,7 +16,7 @@ env:
   PORT: 8080
   MEMORY: 2Gi
   MIN_INSTANCES: 1
-  MAX_INSTANCES: 1
+  MAX_INSTANCES: 2
 
 on:
   push:
