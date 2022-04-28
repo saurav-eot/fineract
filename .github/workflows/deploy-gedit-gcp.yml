@@ -14,9 +14,9 @@ env:
   REGION: us-central1
   INSTANCE_CONNECTION_NAME: "mifos-308109:us-central1:fineractmysql1"
   PORT: 8080
-  MEMORY: 1Gi
+  MEMORY: 2Gi
   MIN_INSTANCES: 0
-  MAX_INSTANCES: 6
+  MAX_INSTANCES: 3
 
 on:
   push:
