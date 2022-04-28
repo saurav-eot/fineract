@@ -87,9 +87,9 @@ jobs:
             --set-env-vars "FINERACT_HIKARI_PASSWORD=${{ secrets.FINERACT_HIKARI_PASSWORD }}" \
             --set-env-vars "FINERACT_HIKARI_MINIMUM_IDLE=10" \
             --set-env-vars "FINERACT_HIKARI_MAXIMUM_POOL_SIZE=20" \
-            --set-env-vars "FINERACT_HIKARI_IDLE_TIMEOUT=60000" \
-            --set-env-vars "FINERACT_HIKARI_MAX_LIFETIME=30000" \
-            --set-env-vars "FINERACT_HIKARI_CONNECTION_TIMEOUT=10000" \
+            --set-env-vars "FINERACT_HIKARI_IDLE_TIMEOUT=1000" \
+            --set-env-vars "FINERACT_HIKARI_MAX_LIFETIME=3000" \
+            --set-env-vars "FINERACT_HIKARI_CONNECTION_TIMEOUT=1500" \
             --set-env-vars "FINERACT_HIKARI_TEST_QUERY=SELECT 1" \
             --set-env-vars "FINERACT_HIKARI_AUTO_COMMIT=true" \
             --set-env-vars "FINERACT_HIKARI_DS_PROPERTIES_CACHE_PREP_STMTS=true" \
