@@ -57,6 +57,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class EntityDatatableChecksWritePlatformServiceImpl implements EntityDatatableChecksWritePlatformService {
 
     private static final Logger LOG = LoggerFactory.getLogger(EntityDatatableChecksWritePlatformServiceImpl.class);
+    public static final String THE_ARE_ENTRIES_IN_THE_TABLE = "The are {} entries in the table {}";
 
     private final PlatformSecurityContext context;
     private final EntityDatatableChecksDataValidator fromApiJsonDeserializer;
@@ -170,7 +171,7 @@ public class EntityDatatableChecksWritePlatformServiceImpl implements EntityData
                 final String datatableName = t.getDatatableName();
                 final Long countEntries = readWriteNonCoreDataService.countDatatableEntries(datatableName, entityId, foreignKeyColumn);
 
-                LOG.debug("The are {} entries in the table {}", countEntries, datatableName);
+                LOG.debug(THE_ARE_ENTRIES_IN_THE_TABLE, countEntries, datatableName);
                 if (countEntries.intValue() == 0) {
                     reqDatatables.add(datatableName);
                 }
@@ -199,7 +200,7 @@ public class EntityDatatableChecksWritePlatformServiceImpl implements EntityData
                 final String datatableName = t.getDatatableName();
                 final Long countEntries = readWriteNonCoreDataService.countDatatableEntries(datatableName, entityId, foreignKeyColumn);
 
-                LOG.debug("The are {} entries in the table {}", countEntries, datatableName);
+                LOG.debug(THE_ARE_ENTRIES_IN_THE_TABLE, countEntries, datatableName);
                 if (countEntries.intValue() == 0) {
                     reqDatatables.add(datatableName);
                 }

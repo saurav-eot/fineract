@@ -46,6 +46,17 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class GenericDataServiceImpl implements GenericDataService {
 
+    public static final String YES = "YES";
+    public static final String TRUE = "TRUE";
+    public static final String PRI = "PRI";
+    public static final String CD_POSTFIX = "_cd";
+    public static final String VARCHAR = "varchar";
+    public static final String INT = "int";
+    public static final String INTEGER = "integer";
+    public static final String RETRIEVE_COLUMN_VALUES_SQL = "select v.id, v.code_score, v.code_value from m_code m join m_code_value v on v.code_id = m.id where m.code_name = ? order by v.order_position, v.id";
+    public static final String ID = "id";
+    public static final String CODE_VALUE = "code_value";
+    public static final String CODE_SCORE = "code_score";
     private final JdbcTemplate jdbcTemplate;
     private final DataSource dataSource;
     private final DatabaseIndependentQueryService databaseIndependentQueryService;
@@ -224,16 +235,16 @@ public class GenericDataServiceImpl implements GenericDataService {
             final String columnType = columnDefinitions.getString(3);
             final Long columnLength = columnDefinitions.getLong(4);
 
-            final boolean columnNullable = "YES".equalsIgnoreCase(isNullable) || "TRUE".equalsIgnoreCase(isNullable);
-            final boolean columnIsPrimaryKey = "PRI".equalsIgnoreCase(isPrimaryKey) || "TRUE".equalsIgnoreCase(isPrimaryKey);
+            final boolean columnNullable = YES.equalsIgnoreCase(isNullable) || TRUE.equalsIgnoreCase(isNullable);
+            final boolean columnIsPrimaryKey = PRI.equalsIgnoreCase(isPrimaryKey) || TRUE.equalsIgnoreCase(isPrimaryKey);
 
             List<ResultsetColumnValueData> columnValues = new ArrayList<>();
             String codeName = null;
-            final int codePosition = columnName.indexOf("_cd");
-            if ("varchar".equalsIgnoreCase(columnType) || "int".equalsIgnoreCase(columnType) || "integer".equalsIgnoreCase(columnType)) {
+            final int codePosition = columnName.indexOf(CD_POSTFIX);
+            if (VARCHAR.equalsIgnoreCase(columnType) || INT.equalsIgnoreCase(columnType) || INTEGER.equalsIgnoreCase(columnType)) {
                 if (codePosition > 0) {
                     codeName = columnName.substring(0, codePosition);
-                    columnValues = retreiveColumnValues(codeName);
+                    columnValues = retrieveColumnValues(codeName);
                 }
             }
 
@@ -247,19 +258,17 @@ public class GenericDataServiceImpl implements GenericDataService {
     /*
      * Candidate for using caching there to get allowed 'column values' from code/codevalue tables
      */
-    private List<ResultsetColumnValueData> retreiveColumnValues(final String codeName) {
+    private List<ResultsetColumnValueData> retrieveColumnValues(final String codeName) {
 
         final List<ResultsetColumnValueData> columnValues = new ArrayList<>();
 
-        final String sql = "select v.id, v.code_score, v.code_value from m_code m join m_code_value v on v.code_id = m.id where m.code_name = ? order by v.order_position, v.id";
-
-        final SqlRowSet rsValues = this.jdbcTemplate.queryForRowSet(sql, new Object[] { codeName }); // NOSONAR
+        final SqlRowSet rsValues = this.jdbcTemplate.queryForRowSet(RETRIEVE_COLUMN_VALUES_SQL, codeName); // NOSONAR
 
         rsValues.beforeFirst();
         while (rsValues.next()) {
-            final Integer id = rsValues.getInt("id");
-            final String codeValue = rsValues.getString("code_value");
-            final Integer score = rsValues.getInt("code_score");
+            final int id = rsValues.getInt(ID);
+            final String codeValue = rsValues.getString(CODE_VALUE);
+            final int score = rsValues.getInt(CODE_SCORE);
 
             columnValues.add(new ResultsetColumnValueData(id, codeValue, score));
         }
@@ -267,12 +276,11 @@ public class GenericDataServiceImpl implements GenericDataService {
         return columnValues;
     }
 
-    @SuppressWarnings("AvoidHidingCauseException")
     private SqlRowSet getDatatableMetaData(final String datatable) {
         try {
             return databaseIndependentQueryService.getTableColumns(dataSource, datatable);
         } catch (IllegalArgumentException e) {
-            throw new DatatableNotFoundException(datatable);
+            throw new DatatableNotFoundException(datatable, e);
         }
     }
 }

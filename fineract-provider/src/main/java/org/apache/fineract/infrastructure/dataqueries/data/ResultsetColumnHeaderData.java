@@ -28,6 +28,49 @@ import org.apache.fineract.infrastructure.core.exception.PlatformDataIntegrityEx
  */
 public final class ResultsetColumnHeaderData implements Serializable {
 
+    public static final String STRING = "STRING";
+    public static final String INTEGER = "INTEGER";
+    public static final String DATE = "DATE";
+    public static final String DATETIME = "DATETIME";
+    public static final String DECIMAL = "DECIMAL";
+    public static final String TEXT = "TEXT";
+    public static final String BOOLEAN = "BOOLEAN";
+    public static final String CODELOOKUP = "CODELOOKUP";
+    public static final String CODEVALUE = "CODEVALUE";
+    public static final String NEWDECIMAL = "NEWDECIMAL";
+    public static final String CLOB = "CLOB";
+    public static final String ENUM = "ENUM";
+    public static final String SET = "SET";
+    public static final String VARCHAR = "varchar";
+    public static final String LONGLONG = "LONGLONG";
+    public static final String BIGINT = "bigint";
+    public static final String SHORT = "SHORT";
+    public static final String SMALLINT = "smallint";
+    public static final String TINY = "TINY";
+    public static final String TINYINT = "tinyint";
+    public static final String INT_24 = "INT24";
+    public static final String INT = "int";
+    public static final String TINYTEXT = "tinytext";
+    public static final String MEDIUMTEXT = "mediumtext";
+    public static final String LONGTEXT = "longtext";
+    public static final String NUMERIC = "numeric";
+    public static final String TIMESTAMPTZ = "timestamptz";
+    public static final String TIMESTAMP_WITHOUT_TIME_ZONE = "timestamp without time zone";
+    public static final String TIMESTAMP_WITH_TIME_ZONE = "timestamp with time zone";
+    public static final String CHARACTER_VARYING = "CHARACTER VARYING";
+    public static final String BPCHAR = "bpchar";
+    public static final String CHAR = "char";
+    public static final String SERIAL_4 = "SERIAL4";
+    public static final String SERIAL = "SERIAL";
+    public static final String SERIAL_8 = "SERIAL8";
+    public static final String SMALLSERIAL = "SMALLSERIAL";
+    public static final String BIGSERIAL = "BIGSERIAL";
+    public static final String INT_4 = "int4";
+    public static final String INT_2 = "int2";
+    public static final String LONG = "LONG";
+    public static final String MEDIUMINT = "mediumint";
+    public static final String INT_8 = "int8";
+    public static final String BIT = "bit";
     private final String columnName;
     private String columnType;
     private final Long columnLength;
@@ -73,22 +116,22 @@ public final class ResultsetColumnHeaderData implements Serializable {
         String displayType = null;
         if (this.columnCode == null) {
             if (isString()) {
-                displayType = "STRING";
+                displayType = STRING;
             } else if (isAnyInteger()) {
                 if (isInteger()) {
                     this.columnType = this.columnType.toUpperCase();
                 }
-                displayType = "INTEGER";
+                displayType = INTEGER;
             } else if (isDate()) {
-                displayType = "DATE";
+                displayType = DATE;
             } else if (isDateTime()) {
-                displayType = "DATETIME";
+                displayType = DATETIME;
             } else if (isDecimal()) {
-                displayType = "DECIMAL";
+                displayType = DECIMAL;
             } else if (isAnyText()) {
-                displayType = "TEXT";
+                displayType = TEXT;
             } else if (isBit()) {
-                displayType = "BOOLEAN";
+                displayType = BOOLEAN;
             } else {
                 throw new PlatformDataIntegrityException("error.msg.invalid.lookup.type",
                         "Invalid Lookup Type:" + this.columnType + " - Column Name: " + this.columnName);
@@ -96,9 +139,9 @@ public final class ResultsetColumnHeaderData implements Serializable {
 
         } else {
             if (isInt() || isInteger()) {
-                displayType = "CODELOOKUP";
+                displayType = CODELOOKUP;
             } else if (isVarchar()) {
-                displayType = "CODEVALUE";
+                displayType = CODEVALUE;
             } else {
                 throw new PlatformDataIntegrityException("error.msg.invalid.lookup.type",
                         "Invalid Lookup Type:" + this.columnType + " - Column Name: " + this.columnName);
@@ -110,25 +153,25 @@ public final class ResultsetColumnHeaderData implements Serializable {
 
     private void adjustColumnTypes() {
         switch (this.columnType) {
-            case "NEWDECIMAL":
-                this.columnType = "DECIMAL";
+            case NEWDECIMAL:
+                this.columnType = DECIMAL;
             break;
-            case "CLOB":
-            case "ENUM":
-            case "SET":
-                this.columnType = "varchar";
+            case CLOB:
+            case ENUM:
+            case SET:
+                this.columnType = VARCHAR;
             break;
-            case "LONGLONG":
-                this.columnType = "bigint";
+            case LONGLONG:
+                this.columnType = BIGINT;
             break;
-            case "SHORT":
-                this.columnType = "smallint";
+            case SHORT:
+                this.columnType = SMALLINT;
             break;
-            case "TINY":
-                this.columnType = "tinyint";
+            case TINY:
+                this.columnType = TINYINT;
             break;
-            case "INT24":
-                this.columnType = "int";
+            case INT_24:
+                this.columnType = INT;
             break;
             default:
             break;
@@ -144,34 +187,34 @@ public final class ResultsetColumnHeaderData implements Serializable {
     }
 
     private boolean isText() {
-        return "text".equalsIgnoreCase(this.columnType);
+        return TEXT.equalsIgnoreCase(this.columnType);
     }
 
     private boolean isTinyText() {
-        return "tinytext".equalsIgnoreCase(this.columnType);
+        return TINYTEXT.equalsIgnoreCase(this.columnType);
     }
 
     private boolean isMediumText() {
-        return "mediumtext".equalsIgnoreCase(this.columnType);
+        return MEDIUMTEXT.equalsIgnoreCase(this.columnType);
     }
 
     private boolean isLongText() {
-        return "longtext".equalsIgnoreCase(this.columnType);
+        return LONGTEXT.equalsIgnoreCase(this.columnType);
     }
 
     private boolean isDecimal() {
-        return "decimal".equalsIgnoreCase(this.columnType) || "NEWDECIMAL".equalsIgnoreCase(this.columnType)
-                || "numeric".equalsIgnoreCase(this.columnType);
+        return DECIMAL.equalsIgnoreCase(this.columnType) || NEWDECIMAL.equalsIgnoreCase(this.columnType)
+                || NUMERIC.equalsIgnoreCase(this.columnType);
         // Refer org.drizzle.jdbc.internal.mysql.MySQLType.java
     }
 
     private boolean isDate() {
-        return "date".equalsIgnoreCase(this.columnType);
+        return DATE.equalsIgnoreCase(this.columnType);
     }
 
     private boolean isDateTime() {
-        return "datetime".equalsIgnoreCase(this.columnType) || "timestamp without time zone".equalsIgnoreCase(this.columnType)
-                || "timestamptz".equalsIgnoreCase(this.columnType) || "timestamp with time zone".equalsIgnoreCase(this.columnType);
+        return DATETIME.equalsIgnoreCase(this.columnType) || TIMESTAMP_WITHOUT_TIME_ZONE.equalsIgnoreCase(this.columnType)
+                || TIMESTAMPTZ.equalsIgnoreCase(this.columnType) || TIMESTAMP_WITH_TIME_ZONE.equalsIgnoreCase(this.columnType);
     }
 
     public boolean isString() {
@@ -179,12 +222,12 @@ public final class ResultsetColumnHeaderData implements Serializable {
     }
 
     private boolean isChar() {
-        return "char".equalsIgnoreCase(this.columnType) || "CHARACTER VARYING".equalsIgnoreCase(this.columnType)
-                || "bpchar".equalsIgnoreCase(this.columnType);
+        return CHAR.equalsIgnoreCase(this.columnType) || CHARACTER_VARYING.equalsIgnoreCase(this.columnType)
+                || BPCHAR.equalsIgnoreCase(this.columnType);
     }
 
     private boolean isVarchar() {
-        return "varchar".equalsIgnoreCase(this.columnType);
+        return VARCHAR.equalsIgnoreCase(this.columnType);
     }
 
     private boolean isAnyInteger() {
@@ -192,43 +235,43 @@ public final class ResultsetColumnHeaderData implements Serializable {
     }
 
     private boolean isSerial() {
-        return "SERIAL".equalsIgnoreCase(this.columnType) || "SERIAL4".equalsIgnoreCase(this.columnType)
-                || "SERIAL8".equalsIgnoreCase(this.columnType) || "SMALLSERIAL".equalsIgnoreCase(this.columnType)
-                || "BIGSERIAL".equalsIgnoreCase(this.columnType);
+        return SERIAL.equalsIgnoreCase(this.columnType) || SERIAL_4.equalsIgnoreCase(this.columnType)
+                || SERIAL_8.equalsIgnoreCase(this.columnType) || SMALLSERIAL.equalsIgnoreCase(this.columnType)
+                || BIGSERIAL.equalsIgnoreCase(this.columnType);
     }
 
     private boolean isInt() {
-        return "int".equalsIgnoreCase(this.columnType);
+        return INT.equalsIgnoreCase(this.columnType);
     }
 
     private boolean isInteger() {
-        return "integer".equalsIgnoreCase(this.columnType) || "int2".equalsIgnoreCase(this.columnType)
-                || "int4".equalsIgnoreCase(this.columnType);
+        return INTEGER.equalsIgnoreCase(this.columnType) || INT_2.equalsIgnoreCase(this.columnType)
+                || INT_4.equalsIgnoreCase(this.columnType);
     }
 
     private boolean isSmallInt() {
-        return "smallint".equalsIgnoreCase(this.columnType);
+        return SMALLINT.equalsIgnoreCase(this.columnType);
     }
 
     private boolean isTinyInt() {
-        return "tinyint".equalsIgnoreCase(this.columnType);
+        return TINYINT.equalsIgnoreCase(this.columnType);
     }
 
     private boolean isMediumInt() {
-        return "mediumint".equalsIgnoreCase(this.columnType);
+        return MEDIUMINT.equalsIgnoreCase(this.columnType);
     }
 
     private boolean isBigInt() {
-        return "bigint".equalsIgnoreCase(this.columnType) || "int8".equalsIgnoreCase(this.columnType);
+        return BIGINT.equalsIgnoreCase(this.columnType) || INT_8.equalsIgnoreCase(this.columnType);
     }
 
     private boolean isLong() {
-        return "LONG".equalsIgnoreCase(this.columnType) || "LONGLONG".equalsIgnoreCase(this.columnType);
+        return LONG.equalsIgnoreCase(this.columnType) || LONGLONG.equalsIgnoreCase(this.columnType);
         // Refer org.drizzle.jdbc.internal.mysql.MySQLType.java
     }
 
     private boolean isBit() {
-        return "bit".equalsIgnoreCase(this.columnType);
+        return BIT.equalsIgnoreCase(this.columnType);
     }
 
     public String getColumnName() {
@@ -256,31 +299,31 @@ public final class ResultsetColumnHeaderData implements Serializable {
     }
 
     public boolean isDateDisplayType() {
-        return "DATE".equalsIgnoreCase(this.columnDisplayType);
+        return DATE.equalsIgnoreCase(this.columnDisplayType);
     }
 
     public boolean isDateTimeDisplayType() {
-        return "DATETIME".equalsIgnoreCase(this.columnDisplayType);
+        return DATETIME.equalsIgnoreCase(this.columnDisplayType);
     }
 
     public boolean isIntegerDisplayType() {
-        return "INTEGER".equalsIgnoreCase(this.columnDisplayType);
+        return INTEGER.equalsIgnoreCase(this.columnDisplayType);
     }
 
     public boolean isDecimalDisplayType() {
-        return "DECIMAL".equalsIgnoreCase(this.columnDisplayType);
+        return DECIMAL.equalsIgnoreCase(this.columnDisplayType);
     }
 
     public boolean isBooleanDisplayType() {
-        return "BOOLEAN".equalsIgnoreCase(this.columnDisplayType);
+        return BOOLEAN.equalsIgnoreCase(this.columnDisplayType);
     }
 
     public boolean isCodeValueDisplayType() {
-        return "CODEVALUE".equalsIgnoreCase(this.columnDisplayType);
+        return CODEVALUE.equalsIgnoreCase(this.columnDisplayType);
     }
 
     public boolean isCodeLookupDisplayType() {
-        return "CODELOOKUP".equalsIgnoreCase(this.columnDisplayType);
+        return CODELOOKUP.equalsIgnoreCase(this.columnDisplayType);
     }
 
     public boolean isMandatory() {

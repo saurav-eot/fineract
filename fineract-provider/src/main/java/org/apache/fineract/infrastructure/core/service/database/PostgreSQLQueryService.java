@@ -30,6 +30,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class PostgreSQLQueryService implements DatabaseQueryService {
 
+    public static final String GET_TABLE_COLUMNS_SQL_PART_1 = "SELECT attname AS COLUMN_NAME, not attnotnull AS IS_NULLABLE, atttypid::regtype  AS DATATYPE, attlen AS CHARACTER_MAXIMUM_LENGTH, attnum = 1 AS COLUMN_KEY FROM pg_attribute WHERE attrelid = '\"";
+    public static final String GET_TABLE_COLUMNS_SQL_PART_2 = "\"'::regclass AND attnum > 0 AND NOT attisdropped ORDER BY attnum";
+    public static final String TABLE_IS_PRESENT_SQL = "SELECT COUNT(table_name) FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '%s';";
     private final DatabaseTypeResolver databaseTypeResolver;
 
     @Autowired
@@ -45,16 +48,14 @@ public class PostgreSQLQueryService implements DatabaseQueryService {
     @Override
     public boolean isTablePresent(DataSource dataSource, String tableName) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        Integer result = jdbcTemplate.queryForObject(format("SELECT COUNT(table_name) " + "FROM information_schema.tables "
-                + "WHERE table_schema = 'public' " + "AND table_name = '%s';", tableName), Integer.class);
+        Integer result = jdbcTemplate.queryForObject(format(TABLE_IS_PRESENT_SQL, tableName), Integer.class);
         return Objects.equals(result, 1);
     }
 
     @Override
     public SqlRowSet getTableColumns(DataSource dataSource, String tableName) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        String sql = "SELECT attname AS COLUMN_NAME, not attnotnull AS IS_NULLABLE, atttypid::regtype  AS DATATYPE, attlen AS CHARACTER_MAXIMUM_LENGTH, attnum = 1 AS COLUMN_KEY FROM pg_attribute WHERE attrelid = '\""
-                + tableName + "\"'::regclass AND attnum > 0 AND NOT attisdropped ORDER BY attnum";
+        String sql = GET_TABLE_COLUMNS_SQL_PART_1 + tableName + GET_TABLE_COLUMNS_SQL_PART_2;
         final SqlRowSet columnDefinitions = jdbcTemplate.queryForRowSet(sql); // NOSONAR
         if (columnDefinitions.next()) {
             return columnDefinitions;

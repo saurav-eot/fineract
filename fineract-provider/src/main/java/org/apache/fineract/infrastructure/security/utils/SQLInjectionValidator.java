@@ -18,6 +18,7 @@
  */
 package org.apache.fineract.infrastructure.security.utils;
 
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,39 +26,31 @@ import org.apache.commons.lang3.StringUtils;
 
 public final class SQLInjectionValidator {
 
+    private static final List<String> DDL_COMMANDS = List.of("create", "drop", "alter", "truncate", "comment", "sleep");
+    private static final List<String> DML_COMMANDS = List.of("select", "insert", "update", "delete", "merge", "upsert", "call");
+    private static final List<String> COMMENTS = List.of("--", "({", "/*", "#");
+    private static final String SQL_PATTERN = "[a-zA-Z_=,\\-'!><.?\"`% ()0-9*\n\r]*";
+
     private SQLInjectionValidator() {
 
     }
-
-    private static final String[] DDL_COMMANDS = { "create", "drop", "alter", "truncate", "comment", "sleep" };
-
-    private static final String[] DML_COMMANDS = { "select", "insert", "update", "delete", "merge", "upsert", "call" };
-
-    private static final String[] COMMENTS = { "--", "({", "/*", "#" };
-
-    private static final String SQL_PATTERN = "[a-zA-Z_=,\\-'!><.?\"`% ()0-9*\n\r]*";
 
     public static void validateSQLInput(final String sqlSearch) {
         if (StringUtils.isBlank(sqlSearch)) {
             return;
         }
-        String lowerCaseSQL = sqlSearch.toLowerCase();
-        for (String ddl : DDL_COMMANDS) {
-            if (lowerCaseSQL.contains(ddl)) {
-                throw new SQLInjectionException();
-            }
+        String lowerCaseSQL = sqlSearch.toLowerCase().trim();
+
+        if (DDL_COMMANDS.contains(lowerCaseSQL)) {
+            throw new SQLInjectionException();
         }
 
-        for (String dml : DML_COMMANDS) {
-            if (lowerCaseSQL.contains(dml)) {
-                throw new SQLInjectionException();
-            }
+        if (DML_COMMANDS.contains(lowerCaseSQL)) {
+            throw new SQLInjectionException();
         }
 
-        for (String comments : COMMENTS) {
-            if (lowerCaseSQL.contains(comments)) {
-                throw new SQLInjectionException();
-            }
+        if (COMMENTS.contains(lowerCaseSQL)) {
+            throw new SQLInjectionException();
         }
 
         // Removing the space before and after '=' operator
@@ -65,12 +58,12 @@ public final class SQLInjectionValidator {
         boolean injectionFound = false;
         String inputSqlString = lowerCaseSQL;
         while (inputSqlString.indexOf(" =") > 0) { // Don't remove space before
-                                                   // = operator
+            // = operator
             inputSqlString = inputSqlString.replaceAll(" =", "=");
         }
 
         while (inputSqlString.indexOf("= ") > 0) { // Don't remove space after =
-                                                   // operator
+            // operator
             inputSqlString = inputSqlString.replaceAll("= ", "=");
         }
 
@@ -136,10 +129,8 @@ public final class SQLInjectionValidator {
             }
         }
 
-        for (String comments : COMMENTS) {
-            if (lowerCaseSQL.contains(comments)) {
-                throw new SQLInjectionException();
-            }
+        if (COMMENTS.contains(lowerCaseSQL)) {
+            throw new SQLInjectionException();
         }
 
         // Removing the space before and after '=' operator
@@ -147,12 +138,12 @@ public final class SQLInjectionValidator {
         boolean injectionFound = false;
         String inputSqlString = lowerCaseSQL;
         while (inputSqlString.indexOf(" =") > 0) { // Don't remove space before
-                                                   // = operator
+            // = operator
             inputSqlString = inputSqlString.replaceAll(" =", "=");
         }
 
         while (inputSqlString.indexOf("= ") > 0) { // Don't remove space after =
-                                                   // operator
+            // operator
             inputSqlString = inputSqlString.replaceAll("= ", "=");
         }
 
