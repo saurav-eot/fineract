@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - develop
+      - code-quality
 
 permissions:
   contents: read
