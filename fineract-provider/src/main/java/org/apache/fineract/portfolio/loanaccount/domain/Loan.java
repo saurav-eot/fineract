@@ -69,6 +69,7 @@ import org.apache.fineract.infrastructure.core.domain.ExternalId;
 import org.apache.fineract.infrastructure.core.exception.PlatformApiDataValidationException;
 import org.apache.fineract.infrastructure.core.serialization.JsonParserHelper;
 import org.apache.fineract.infrastructure.core.service.DateUtils;
+import org.apache.fineract.infrastructure.core.service.ExternalIdFactory;
 import org.apache.fineract.infrastructure.security.service.RandomPasswordGenerator;
 import org.apache.fineract.organisation.holiday.domain.Holiday;
 import org.apache.fineract.organisation.holiday.service.HolidayUtil;
@@ -194,7 +195,7 @@ public class Loan extends AbstractAuditableWithUTCDateTimeCustom {
     private String accountNumber;
 
     @Column(name = "external_id")
-    private String externalId;
+    private ExternalId externalId;
 
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = true)
@@ -313,6 +314,9 @@ public class Loan extends AbstractAuditableWithUTCDateTimeCustom {
 
     @Column(name = "total_overpaid_derived", scale = 6, precision = 19)
     private BigDecimal totalOverpaid;
+
+    @Column(name = "overpaidon_date")
+    private LocalDate overpaidOnDate;
 
     @Column(name = "loan_counter")
     private Integer loanCounter;
@@ -1437,10 +1441,14 @@ public class Loan extends AbstractAuditableWithUTCDateTimeCustom {
             this.createStandingInstructionAtDisbursement = valueAsInput;
         }
 
-        if (command.isChangeInStringParameterNamed(EXTERNAL_ID, this.externalId)) {
+        if (command.isChangeInStringParameterNamed(EXTERNAL_ID, this.externalId.getValue())) {
             final String newValue = command.stringValueOfParameterNamed(EXTERNAL_ID);
-            actualChanges.put(EXTERNAL_ID, newValue);
-            this.externalId = StringUtils.defaultIfEmpty(newValue, null);
+            ExternalId externalId = ExternalIdFactory.produce(newValue);
+            if (externalId.isEmpty() && TemporaryConfigurationServiceContainer.isExternalIdAutoGenerationEnabled()) {
+                externalId = ExternalId.generate();
+            }
+            actualChanges.put(EXTERNAL_ID, externalId);
+            this.externalId = externalId;
         }
 
         // add clientId, groupId and loanType changes to actual changes
@@ -2052,7 +2060,7 @@ public class Loan extends AbstractAuditableWithUTCDateTimeCustom {
     }
 
     public void loanApplicationSubmittal(final LoanScheduleModel loanSchedule, final LoanApplicationTerms loanApplicationTerms,
-            final LoanLifecycleStateMachine lifecycleStateMachine, final LocalDate submittedOn, final String externalId,
+            final LoanLifecycleStateMachine lifecycleStateMachine, final LocalDate submittedOn, final ExternalId externalId,
             final boolean allowTransactionsOnHoliday, final List<Holiday> holidays, final WorkingDays workingDays,
             final boolean allowTransactionsOnNonWorkingDay) {
 
@@ -3410,6 +3418,9 @@ public class Loan extends AbstractAuditableWithUTCDateTimeCustom {
             handleLoanRepaymentInFull(transactionDate, loanLifecycleStateMachine);
             statusChanged = true;
         }
+        if (this.totalOverpaid == null || BigDecimal.ZERO.compareTo(this.totalOverpaid) == 0) {
+            this.overpaidOnDate = null;
+        }
         return statusChanged;
     }
 
@@ -3429,6 +3440,9 @@ public class Loan extends AbstractAuditableWithUTCDateTimeCustom {
             this.closedOnDate = transactionDate;
             this.actualMaturityDate = transactionDate;
         } else if (LoanStatus.fromInt(this.loanStatus).isOverpaid()) {
+            if (this.totalOverpaid == null || BigDecimal.ZERO.compareTo(this.totalOverpaid) == 0) {
+                this.overpaidOnDate = null;
+            }
             loanLifecycleStateMachine.transition(LoanEvent.LOAN_REPAYMENT_OR_WAIVER, this);
         }
         processIncomeAccrualTransactionOnLoanClosure();
@@ -3512,7 +3526,7 @@ public class Loan extends AbstractAuditableWithUTCDateTimeCustom {
     private void handleLoanOverpayment(final LoanLifecycleStateMachine loanLifecycleStateMachine) {
 
         loanLifecycleStateMachine.transition(LoanEvent.LOAN_OVERPAYMENT, this);
-
+        this.overpaidOnDate = DateUtils.getBusinessLocalDate();
         this.closedOnDate = null;
         this.actualMaturityDate = null;
     }
@@ -3784,7 +3798,7 @@ public class Loan extends AbstractAuditableWithUTCDateTimeCustom {
             final LocalDate writtenOffOnLocalDate = command.localDateValueOfParameterNamed(TRANSACTION_DATE);
             final String txnExternalId = command.stringValueOfParameterNamedAllowingNull(EXTERNAL_ID);
 
-            ExternalId externalId = StringUtils.isBlank(txnExternalId) ? ExternalId.empty() : new ExternalId(txnExternalId);
+            ExternalId externalId = ExternalIdFactory.produce(txnExternalId);
 
             if (externalId.isEmpty() && TemporaryConfigurationServiceContainer.isExternalIdAutoGenerationEnabled()) {
                 externalId = ExternalId.generate();
@@ -3878,7 +3892,7 @@ public class Loan extends AbstractAuditableWithUTCDateTimeCustom {
         final LocalDate closureDate = command.localDateValueOfParameterNamed(TRANSACTION_DATE);
         final String txnExternalId = command.stringValueOfParameterNamedAllowingNull(EXTERNAL_ID);
 
-        ExternalId externalId = StringUtils.isBlank(txnExternalId) ? ExternalId.empty() : new ExternalId(txnExternalId);
+        ExternalId externalId = ExternalIdFactory.produce(txnExternalId);
         if (externalId.isEmpty() && TemporaryConfigurationServiceContainer.isExternalIdAutoGenerationEnabled()) {
             externalId = ExternalId.generate();
         }
@@ -5280,6 +5294,10 @@ public class Loan extends AbstractAuditableWithUTCDateTimeCustom {
         return this.totalOverpaid;
     }
 
+    public LocalDate getOverpaidOnDate() {
+        return this.overpaidOnDate;
+    }
+
     public void updateIsInterestRecalculationEnabled() {
         this.loanRepaymentScheduleDetail.updateIsInterestRecalculationEnabled(isInterestRecalculationEnabledForProduct());
     }
@@ -6020,7 +6038,7 @@ public class Loan extends AbstractAuditableWithUTCDateTimeCustom {
         return this.accountNumber;
     }
 
-    public String getExternalId() {
+    public ExternalId getExternalId() {
         return this.externalId;
     }
 
@@ -6086,6 +6104,7 @@ public class Loan extends AbstractAuditableWithUTCDateTimeCustom {
         updateLoanSummaryDerivedFields();
 
         if (this.totalOverpaid == null || BigDecimal.ZERO.compareTo(this.totalOverpaid) == 0) {
+            this.overpaidOnDate = null;
             defaultLoanLifecycleStateMachine.transition(LoanEvent.LOAN_CREDIT_BALANCE_REFUND, this);
         }
 

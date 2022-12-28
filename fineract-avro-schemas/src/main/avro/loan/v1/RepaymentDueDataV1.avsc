@@ -13,6 +13,14 @@
         },
         {
             "default": null,
+            "name": "installmentDueDate",
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        {
+            "default": null,
             "name": "principalAmountDue",
             "type": [
                 "null",

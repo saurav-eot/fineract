@@ -21,6 +21,7 @@ package org.apache.fineract.batch.command.internal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.UriInfo;
@@ -30,10 +31,13 @@ import org.apache.fineract.batch.domain.BatchRequest;
 import org.apache.fineract.batch.domain.BatchResponse;
 import org.apache.fineract.portfolio.loanaccount.api.LoanTransactionsApiResource;
 import org.apache.http.HttpStatus;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+/**
+ * Test class for {@link AdjustTransactionCommandStrategy}.
+ */
 public class AdjustTransactionCommandStrategyTest {
 
     /**
@@ -58,10 +62,12 @@ public class AdjustTransactionCommandStrategyTest {
         final BatchResponse response = testContext.subjectToTest.execute(request, testContext.uriInfo);
 
         // then
-        assertEquals(response.getStatusCode(), HttpStatus.SC_OK);
-        assertEquals(response.getRequestId(), request.getRequestId());
-        assertEquals(response.getHeaders(), request.getHeaders());
-        assertEquals(response.getBody(), responseBody);
+        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
+        assertEquals(request.getRequestId(), response.getRequestId());
+        assertEquals(request.getHeaders(), response.getHeaders());
+        assertEquals(responseBody, response.getBody());
+        verify(testContext.loanTransactionsApiResource).adjustLoanTransaction(eq(loanId), eq(transactionId), eq(request.getBody()),
+                eq(null));
     }
 
     /**
@@ -86,10 +92,12 @@ public class AdjustTransactionCommandStrategyTest {
         final BatchResponse response = testContext.subjectToTest.execute(request, testContext.uriInfo);
 
         // then
-        assertEquals(response.getStatusCode(), HttpStatus.SC_OK);
-        assertEquals(response.getRequestId(), request.getRequestId());
-        assertEquals(response.getHeaders(), request.getHeaders());
-        assertEquals(response.getBody(), responseBody);
+        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
+        assertEquals(request.getRequestId(), response.getRequestId());
+        assertEquals(request.getHeaders(), response.getHeaders());
+        assertEquals(responseBody, response.getBody());
+        verify(testContext.loanTransactionsApiResource).adjustLoanTransaction(eq(loanId), eq(transactionId), eq(request.getBody()),
+                eq("chargeback"));
     }
 
     /**
@@ -125,14 +133,26 @@ public class AdjustTransactionCommandStrategyTest {
      */
     private static class TestContext {
 
+        /**
+         * The Mock UriInfo
+         */
         @Mock
         private UriInfo uriInfo;
 
+        /**
+         * The Mock {@link LoanTransactionsApiResource}
+         */
         @Mock
         private LoanTransactionsApiResource loanTransactionsApiResource;
 
+        /**
+         * The class under test.
+         */
         private final AdjustTransactionCommandStrategy subjectToTest;
 
+        /**
+         * Constructor.
+         */
         TestContext() {
             MockitoAnnotations.openMocks(this);
             subjectToTest = new AdjustTransactionCommandStrategy(loanTransactionsApiResource);

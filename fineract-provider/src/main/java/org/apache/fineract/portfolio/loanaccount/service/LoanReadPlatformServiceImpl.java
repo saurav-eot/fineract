@@ -231,6 +231,20 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
     }
 
     @Override
+    public LoanAccountData fetchRepaymentScheduleData(LoanAccountData accountData) {
+        final RepaymentScheduleRelatedLoanData repaymentScheduleRelatedData = accountData.getTimeline().repaymentScheduleRelatedData(
+                accountData.getCurrency(), accountData.getPrincipal(), accountData.getApprovedPrincipal(),
+                accountData.getInArrearsTolerance(), accountData.getFeeChargesAtDisbursementCharged());
+
+        final Collection<DisbursementData> disbursementData = retrieveLoanDisbursementDetails(accountData.getId());
+        final LoanScheduleData repaymentSchedule = retrieveRepaymentSchedule(accountData.getId(), repaymentScheduleRelatedData,
+                disbursementData, accountData.isInterestRecalculationEnabled(),
+                accountData.getSummary() != null ? accountData.getSummary().getFeeChargesPaid() : BigDecimal.ZERO);
+        accountData.setRepaymentSchedule(repaymentSchedule);
+        return accountData;
+    }
+
+    @Override
     public LoanScheduleData retrieveRepaymentSchedule(final Long loanId,
             final RepaymentScheduleRelatedLoanData repaymentScheduleRelatedLoanData, Collection<DisbursementData> disbursementData,
             boolean isInterestRecalculationEnabled, BigDecimal totalPaidFeeCharges) {
@@ -454,6 +468,7 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
         final BigDecimal outstandingLoanBalance = loanRepaymentScheduleInstallment.getPrincipalOutstanding(currency).getAmount();
         final BigDecimal unrecognizedIncomePortion = null;
         BigDecimal adjustedChargeAmount = adjustPrepayInstallmentCharge(loan, onDate);
+
         return new LoanTransactionData(null, null, null, transactionType, null, currencyData, earliestUnpaidInstallmentDate,
                 loanRepaymentScheduleInstallment.getTotalOutstanding(currency).getAmount().subtract(adjustedChargeAmount),
                 loan.getNetDisbursalAmount(), loanRepaymentScheduleInstallment.getPrincipalOutstanding(currency).getAmount(),
@@ -496,6 +511,7 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
         final BigDecimal amount = waiveOfInterest.getAmount(currency).getAmount();
         final BigDecimal outstandingLoanBalance = null;
         final BigDecimal unrecognizedIncomePortion = null;
+
         return new LoanTransactionData(null, null, null, transactionType, null, currencyData, waiveOfInterest.getTransactionDate(), amount,
                 loan.getNetDisbursalAmount(), null, null, null, null, null, ExternalId.empty(), null, null, outstandingLoanBalance,
                 unrecognizedIncomePortion, false, loanId, loan.getExternalId());
@@ -661,7 +677,7 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
                     + " lpvi.minimum_gap as minimuminstallmentgap, lpvi.maximum_gap as maximuminstallmentgap, "
                     + " lp.can_use_for_topup as canUseForTopup, l.is_topup as isTopup, topup.closure_loan_id as closureLoanId, "
                     + " l.total_recovered_derived as totalRecovered, topuploan.account_no as closureLoanAccountNo, "
-                    + " topup.topup_amount as topupAmount, l.last_closed_business_date as lastClosedBusinessDate from m_loan l" //
+                    + " topup.topup_amount as topupAmount, l.last_closed_business_date as lastClosedBusinessDate,l.overpaidon_date as overpaidOnDate from m_loan l" //
                     + " join m_product_loan lp on lp.id = l.product_id" //
                     + " left join m_loan_recalculation_details lir on lir.loan_id = l.id join m_currency rc on rc."
                     + sqlGenerator.escape("code") + " = l.currency_code" //
@@ -696,12 +712,13 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
 
             final Long id = rs.getLong("id");
             final String accountNo = rs.getString("accountNo");
-            final String externalId = rs.getString("externalId");
+            final String externalIdStr = rs.getString("externalId");
+            final ExternalId externalId = ExternalIdFactory.produce(externalIdStr);
 
             final Long clientId = JdbcSupport.getLong(rs, "clientId");
             final String clientAccountNo = rs.getString("clientAccountNo");
             final Long clientOfficeId = JdbcSupport.getLong(rs, "clientOfficeId");
-            final String clientExternalId = rs.getString("clientExternalId");
+            final ExternalId clientExternalId = ExternalIdFactory.produce(rs.getString("clientExternalId"));
             final String clientName = rs.getString("clientName");
 
             final Long groupId = JdbcSupport.getLong(rs, "groupId");
@@ -988,6 +1005,7 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
 
             final boolean isFraud = rs.getBoolean("isFraud");
             final LocalDate lastClosedBusinessDate = JdbcSupport.getLocalDate(rs, "lastClosedBusinessDate");
+            final LocalDate overpaidOnDate = JdbcSupport.getLocalDate(rs, "overpaidOnDate");
 
             return LoanAccountData.basicLoanDetails(id, accountNo, status, externalId, clientId, clientAccountNo, clientName,
                     clientOfficeId, clientExternalId, groupData, loanType, loanProductId, loanProductName, loanProductDescription,
@@ -1004,7 +1022,7 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
                     createStandingInstructionAtDisbursement, isvariableInstallmentsAllowed, minimumGap, maximumGap, loanSubStatus,
                     canUseForTopup, isTopup, closureLoanId, closureLoanAccountNo, topupAmount, isEqualAmortization,
                     fixedPrincipalPercentagePerInstallment, delinquencyRange, disallowExpectedDisbursements, isFraud,
-                    lastClosedBusinessDate);
+                    lastClosedBusinessDate, overpaidOnDate);
         }
     }
 
@@ -1344,7 +1362,8 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
 
             final Long id = rs.getLong("id");
             final Long loanId = rs.getLong("loanId");
-            final String externalLoanId = rs.getString("externalLoanId");
+            final String externalLoanIdStr = rs.getString("externalLoanId");
+            final ExternalId externalLoanId = ExternalIdFactory.produce(externalLoanIdStr);
             final Long officeId = rs.getLong("officeId");
             final String officeName = rs.getString("officeName");
             final int transactionTypeInt = JdbcSupport.getInteger(rs, "transactionType");
@@ -2032,7 +2051,8 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
 
             final Long id = rs.getLong("id");
             final Long loanId = rs.getLong("loanId");
-            final String externalLoanId = rs.getString("externalLoanId");
+            final String externalLoanIdStr = rs.getString("externalLoanId");
+            final ExternalId externalLoanId = ExternalIdFactory.produce(externalLoanIdStr);
             final int transactionTypeInt = JdbcSupport.getInteger(rs, "transactionType");
             final LoanTransactionEnumData transactionType = LoanEnumerations.transactionType(transactionTypeInt);
 
@@ -2185,7 +2205,7 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
 
     private LoanTransactionData retrieveRefundTemplate(Long loanId, LoanTransactionType loanTransactionType,
             Collection<PaymentTypeData> paymentOptions, MonetaryCurrency currency, BigDecimal transactionAmount, BigDecimal netDisbursal,
-            String externalLoanId) {
+            ExternalId externalLoanId) {
 
         final ApplicationCurrency applicationCurrency = this.applicationCurrencyRepository.findOneWithNotFoundDetection(currency);
 
@@ -2364,7 +2384,6 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
             final BigDecimal netDisbursalAmount = JdbcSupport.getBigDecimalDefaultToZeroIfNull(rs, "netDisbursalAmount");
             final Long id = null;
             final Long loanId = null;
-            final String externalLoanId = null;
             final Long officeId = null;
             final String officeName = null;
             boolean manuallyReversed = false;
@@ -2373,7 +2392,7 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
             final BigDecimal fixedEmiAmount = null;
             return new LoanTransactionData(id, officeId, officeName, transactionType, paymentDetailData, currencyData, date, totalDue,
                     netDisbursalAmount, principalPortion, interestDue, feeDue, penaltyDue, overPaymentPortion, ExternalId.empty(), transfer,
-                    fixedEmiAmount, outstandingLoanBalance, unrecognizedIncomePortion, manuallyReversed, loanId, externalLoanId);
+                    fixedEmiAmount, outstandingLoanBalance, unrecognizedIncomePortion, manuallyReversed, loanId, ExternalId.empty());
         }
 
     }
@@ -2418,7 +2437,7 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
     }
 
     @Override
-    public Long retrieveLoanIdByExternalId(String externalId) {
+    public Long retrieveLoanIdByExternalId(ExternalId externalId) {
         return loanRepositoryWrapper.findIdByExternalId(externalId);
     }
 

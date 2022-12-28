@@ -48,6 +48,8 @@ public interface LoanReadPlatformService {
 
     LoanAccountData retrieveOne(Long loanId);
 
+    LoanAccountData fetchRepaymentScheduleData(LoanAccountData accountData);
+
     LoanScheduleData retrieveRepaymentSchedule(Long loanId, RepaymentScheduleRelatedLoanData repaymentScheduleRelatedData,
             Collection<DisbursementData> disbursementData, boolean isInterestRecalculationEnabled, BigDecimal totalPaidFeeCharges);
 
@@ -158,5 +160,5 @@ public interface LoanReadPlatformService {
 
     Long retrieveLoanTransactionIdByExternalId(ExternalId externalId);
 
-    Long retrieveLoanIdByExternalId(String externalId);
+    Long retrieveLoanIdByExternalId(ExternalId externalId);
 }
